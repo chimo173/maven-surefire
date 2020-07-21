@@ -1,11 +1,15 @@
 # Usage
 
-This repository is a fork of Maven Surefire that contains two main modifications. (1) A Maven extension to ensure that any Maven project one runs ```mvn test``` on will use this custom version of Surefire instead, and (2) the ability to control the ordering of tests run directly with Maven Surefire.
+This repository is a fork of Maven Surefire that contains two main modifications.
+
+1. A Maven extension to ensure that any Maven project one runs ```mvn test``` on will use this custom version of Surefire instead, and
+2. the ability to control the ordering of tests run directly with Maven Surefire.
 
 
 ## Setup
 
 To use the plugin, perform the following steps.
+
 1. Run ```mvn install -DskipTests``` in this directory
 2. Copy ```surefire-changing-maven-extension/target/surefire-changing-maven-extension-1.0-SNAPSHOT.jar``` into your Maven installation's ```lib/ext``` directory
 
