@@ -31,6 +31,11 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.surefire.suite.RunResult;
 
+import java.nio.file.Files;
+import java.nio.charset.Charset;
+import java.io.IOException;
+
+
 import static org.apache.maven.plugin.surefire.SurefireHelper.reportExecution;
 
 /**
@@ -584,6 +589,32 @@ public class SurefirePlugin
     @Override
     public String getTest()
     {
+        // Path f = Paths.get( test );
+        // if (Files.exists( f ) ) {
+        //try {
+        //List<String> l = Files.readAllLines( f );
+        //return String.join( "," , l );
+        // } catch (IOException e ) { }
+        // }
+
+        File f = new File( test );
+        if ( f.exists() && !f.isDirectory ( ) )
+            {
+                try
+                    {
+                        List<String> l = Files.readAllLines( f.toPath(), Charset.defaultCharset( ) );
+                        StringBuilder sb = new StringBuilder( );
+                        for ( String s : l )
+                            {
+                                sb.append( s + "," );
+                            }
+                        String s = sb.toString( );
+                        return s.substring( 0 , s.length( ) - 1 );
+                    }
+                catch ( IOException e )
+                    {
+                    }
+            }
         return test;
     }
 

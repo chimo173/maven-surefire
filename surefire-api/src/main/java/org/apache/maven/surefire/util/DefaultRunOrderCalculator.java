@@ -131,10 +131,10 @@ public class DefaultRunOrderCalculator
         }
         else if ( MethodRunOrder.FLAKY_FINDING.equals( order ) )
         {
-            String orderParam = System.getProperty( "flakyTestOrder" );
+            String orderParam = System.getProperty( "test" );
             if ( orderParam == null )
             {
-                throw new IllegalStateException( "Please set system property flakyTestOrder to use flaky finding" );
+                throw new IllegalStateException( "Please set system property test to use flaky finding" );
             }
             final HashMap<String, Integer> orders = new HashMap<>();
             int i = 0;
@@ -142,10 +142,10 @@ public class DefaultRunOrderCalculator
             {
                 orders.put( s, i );
                 i++;
-                if ( i > 2 )
-                {
-                    throw new UnsupportedOperationException( "This only supports 2 tests at a time for now." );
-                }
+                // if ( i > 2 )
+                // {
+                //     throw new UnsupportedOperationException( "This only supports 2 tests at a time for now." );
+                // }
             }
             return new Comparator<String>()
             {
@@ -227,7 +227,7 @@ public class DefaultRunOrderCalculator
         LinkedList<Class<?>> ret = new LinkedList<>();
         for ( String s : flakyTestOrder.split( "," ) )
         {
-            String testClass = s.substring( s.indexOf( '(' ) + 1, s.length() - 1 );
+            String testClass = s.substring( 0, s.indexOf( '#' ) );
             Class<?> c = classes.remove( testClass );
             if ( c != null )
             {
