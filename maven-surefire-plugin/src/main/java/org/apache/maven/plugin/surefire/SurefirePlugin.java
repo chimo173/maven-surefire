@@ -589,14 +589,6 @@ public class SurefirePlugin
     @Override
     public String getTest()
     {
-        // Path f = Paths.get( test );
-        // if (Files.exists( f ) ) {
-        //try {
-        //List<String> l = Files.readAllLines( f );
-        //return String.join( "," , l );
-        // } catch (IOException e ) { }
-        // }
-
         File f = new File( test );
         if ( f.exists() && !f.isDirectory ( ) )
             {

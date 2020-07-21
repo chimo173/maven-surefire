@@ -32,6 +32,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
+import java.nio.file.Files;
+import java.nio.charset.Charset;
+import java.io.IOException;
+import java.io.File;
+
+
 /**
  * Applies the final runorder of the tests
  *
@@ -131,21 +137,17 @@ public class DefaultRunOrderCalculator
         }
         else if ( MethodRunOrder.FLAKY_FINDING.equals( order ) )
         {
-            String orderParam = System.getProperty( "test" );
+            String orderParam = parseFlakyTestOrder( System.getProperty( "test" ) );
             if ( orderParam == null )
             {
-                throw new IllegalStateException( "Please set system property test to use flaky finding" );
+                throw new IllegalStateException( "Please set system property -Dtest to use fixed order" );
             }
             final HashMap<String, Integer> orders = new HashMap<>();
             int i = 0;
             for ( String s : orderParam.split( "," ) )
             {
-                orders.put( s, i );
+                orders.put( changeTestNameFormatHashToParen( s ), i );
                 i++;
-                // if ( i > 2 )
-                // {
-                //     throw new UnsupportedOperationException( "This only supports 2 tests at a time for now." );
-                // }
             }
             return new Comparator<String>()
             {
@@ -183,11 +185,21 @@ public class DefaultRunOrderCalculator
         }
     }
 
+    public String changeTestNameFormatHashToParen( String hashTestName )
+    {
+        String[] nameSplit = hashTestName.split( "#" );
+        String className = nameSplit[0];
+        String testName = nameSplit[1];
+        return testName + "(" + className + ")";
+    }
+
     private void orderTestClasses( List<Class<?>> testClasses, RunOrder runOrder )
     {
-        if ( System.getProperty( "flakyTestOrder" ) != null )
+        if ( System.getProperty( "surefire.methodRunOrder" ) != null
+             && System.getProperty( "surefire.methodRunOrder" ).toLowerCase().equals( "flakyfinding" ) )
         {
-            List<Class<?>> sorted = sortClassesBySpecifiedOrder( testClasses, System.getProperty( "flakyTestOrder" ) );
+            List<Class<?>> sorted
+                = sortClassesBySpecifiedOrder( testClasses, parseFlakyTestOrder( System.getProperty( "test" ) ) );
             testClasses.clear();
             testClasses.addAll( sorted );
         }
@@ -215,6 +227,32 @@ public class DefaultRunOrderCalculator
         {
             Collections.sort( testClasses, sortOrder );
         }
+    }
+
+    private String parseFlakyTestOrder( String s )
+    {
+        if ( s != null && s != "" )
+            {
+                File f = new File( s );
+                if ( f.exists() && !f.isDirectory ( ) )
+                    {
+                        try
+                            {
+                                List<String> l = Files.readAllLines( f.toPath(), Charset.defaultCharset( ) );
+                                StringBuilder sb = new StringBuilder( );
+                                for ( String sd : l )
+                                    {
+                                        sb.append( sd + "," );
+                                    }
+                                String sd = sb.toString( );
+                                return sd.substring( 0 , sd.length( ) - 1 );
+                            }
+                        catch ( IOException e )
+                            {
+                            }
+                    }
+            }
+        return s;
     }
 
     private List<Class<?>> sortClassesBySpecifiedOrder( List<Class<?>> testClasses, String flakyTestOrder )

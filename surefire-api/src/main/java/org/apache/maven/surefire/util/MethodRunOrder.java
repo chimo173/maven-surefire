@@ -28,7 +28,7 @@ public class MethodRunOrder
     public static final MethodRunOrder ALPHABETICAL = new MethodRunOrder( "alphabetical" );
     public static final MethodRunOrder REVERSE_ALPHABETICAL = new MethodRunOrder( "reversealphabetical" );
     public static final MethodRunOrder RANDOM = new MethodRunOrder( "random" );
-    public static final MethodRunOrder FLAKY_FINDING = new MethodRunOrder( "flakyfinding" );
+    public static final MethodRunOrder FLAKY_FINDING = new MethodRunOrder( "fixed" );
     public static final MethodRunOrder DEFAULT = new MethodRunOrder( "default" );
 
     private final String name;
