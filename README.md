@@ -55,3 +55,13 @@ Then running the Maven command above will result in the tests running in the fol
 1. **Test methods from different test classes cannot interleave.**  When test methods from various test classes interleave, all test methods from the first time the test class runs will run then as well. E.g., If tests ClassA.testA, ClassB.testA, ClassA.testB are provided, then the run order will be ClassA.testA, ClassA.testB, ClassB.testA.
 
 2. **FixMethodOrder annotations are ignored.** JUnit 4.11+ provides the annotation [FixMethodOrder](https://junit.org/junit4/javadoc/4.12/org/junit/FixMethodOrder.html) to control the ordering in which tests are run. Such annotations are ignored when this plugin is used. E.g., If tests ClassA.testB, ClassA.testA are provided and FixMethodOrder is set to NAME_ASCENDING, then the run order will still be ClassA.testB, ClassA.testA.
+
+## TODOs
+
+The following are features that we would like to have but are yet to be supported.
+
+1. Randomize every test in a class
+  - Randomize with seed, prints the seed somewhere
+2. Have surefire reports save the order in which the test classes are run
+3. Allow one to get just the test order list without running tests
+4. Reverse mode
