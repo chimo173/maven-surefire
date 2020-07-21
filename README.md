@@ -18,7 +18,7 @@ The copying of the extension helps ensure that any project you run ```mvn test``
 ## Example
 
 ```
-mvn test  -Dsurefire.methodRunOrder=fixed \
+mvn test -Dsurefire.methodRunOrder=fixed \
 -Dtest=org.apache.dubbo.rpc.protocol.dubbo.DubboLazyConnectTest#testSticky1,\
 org.apache.dubbo.rpc.protocol.dubbo.DubboProtocolTest#testDubboProtocol,\
 org.apache.dubbo.rpc.protocol.dubbo.DubboProtocolTest#testDubboProtocolWithMina
