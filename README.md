@@ -64,7 +64,7 @@ Then running the Maven command above will result in the tests running in the fol
 
 The following are features that we would like to have but are yet to be supported.
 
-1. Randomize every test in a class
+1. Randomize every test in a class (mostly done by Jon already)
   - Randomize with seed, prints the seed somewhere
 2. Have surefire reports save the order in which the test classes are run
 3. Allow one to get just the test order list without running tests
