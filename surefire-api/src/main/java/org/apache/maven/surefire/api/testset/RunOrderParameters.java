@@ -31,26 +31,40 @@ public class RunOrderParameters
 
     private File runStatisticsFile;
 
-    public RunOrderParameters( RunOrder[] runOrder, File runStatisticsFile )
+    private Long randomSeed;
+
+    public RunOrderParameters( RunOrder[] runOrder, File runStatisticsFile, Long randomSeed )
     {
         this.runOrder = runOrder;
         this.runStatisticsFile = runStatisticsFile;
+        this.randomSeed = randomSeed;
     }
 
-    public RunOrderParameters( String runOrder, File runStatisticsFile )
+    public RunOrderParameters( String runOrder, File runStatisticsFile, Long randomSeed )
     {
         this.runOrder = runOrder == null ? RunOrder.DEFAULT : RunOrder.valueOfMulti( runOrder );
         this.runStatisticsFile = runStatisticsFile;
+        this.randomSeed = randomSeed;
     }
 
     public static RunOrderParameters alphabetical()
     {
-        return new RunOrderParameters( new RunOrder[]{ RunOrder.ALPHABETICAL }, null );
+        return new RunOrderParameters( new RunOrder[]{ RunOrder.ALPHABETICAL }, null, null );
     }
 
     public RunOrder[] getRunOrder()
     {
         return runOrder;
+    }
+
+    public Long getRandomSeed()
+    {
+        return randomSeed;
+    }
+
+    public void setRandomSeed( long randomSeed )
+    {
+        this.randomSeed = randomSeed;
     }
 
     public File getRunStatisticsFile()

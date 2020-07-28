@@ -114,7 +114,7 @@ public class SurefireReflectorTest
         SurefireReflector surefireReflector = getReflector();
         Object foo = getFoo();
 
-        RunOrderParameters runOrderParameters = new RunOrderParameters( RunOrder.DEFAULT, new File( "." ) );
+        RunOrderParameters runOrderParameters = new RunOrderParameters( RunOrder.DEFAULT, new File( "." ), null );
         surefireReflector.setRunOrderParameters( foo, runOrderParameters );
         assertTrue( isCalled( foo ) );
     }

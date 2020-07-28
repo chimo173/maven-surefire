@@ -2382,6 +2382,18 @@ public class AbstractSurefireMojoTest
         }
 
         @Override
+        public Long getRandomSeed()
+        {
+            return null;
+        }
+
+        @Override
+        public void setRandomSeed( Long seed )
+        {
+
+        }
+
+        @Override
         protected void handleSummary( RunResult summary, Exception firstForkException )
         {
 
