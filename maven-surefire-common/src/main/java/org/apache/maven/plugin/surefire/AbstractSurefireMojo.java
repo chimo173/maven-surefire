@@ -115,6 +115,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.regex.Matcher;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -3058,12 +3059,23 @@ public abstract class AbstractSurefireMojo
 
     private void printDefaultSeedIfNecessary()
     {
-        if ( getRandomSeed() == null && getRunOrder().equals( RunOrder.RANDOM.name() ) )
+        Matcher m = RunOrder.RANDOM.getMatcher( getRunOrder() );
+        if ( m.find() )
         {
-            setRandomSeed( System.nanoTime() );
-            getConsoleLogger().info(
-                "Tests will run in random order. To reproduce ordering use flag -D"
-                    + getPluginName() + ".seed=" + getRandomSeed() );
+            long seed;
+            try
+            {
+                seed = Long.parseLong( m.group( 1 ) );
+                getConsoleLogger().info( "Tests will run in random order. Seed provided: -D"
+                                        + getPluginName() + ".runOrder=random" + seed );
+            }
+            catch ( NumberFormatException e )
+            {
+                seed = System.nanoTime();
+                getConsoleLogger().info( "Tests will run in random order. To reproduce ordering use -D"
+                                        + getPluginName() + ".runOrder=random" + seed );
+            }
+            setRandomSeed( seed  );
         }
     }
 

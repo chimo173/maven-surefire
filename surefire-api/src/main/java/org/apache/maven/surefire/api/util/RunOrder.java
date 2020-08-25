@@ -21,6 +21,8 @@ package org.apache.maven.surefire.api.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.StringTokenizer;
 
 /**
@@ -36,7 +38,7 @@ public class RunOrder
 
     public static final RunOrder HOURLY = new RunOrder( "hourly" );
 
-    public static final RunOrder RANDOM = new RunOrder( "random" );
+    public static final RunOrder RANDOM = new RunOrder( "random([0-9]*)" );
 
     public static final RunOrder REVERSE_ALPHABETICAL = new RunOrder( "reversealphabetical" );
 
@@ -91,7 +93,7 @@ public class RunOrder
     private static String createMessageForMissingRunOrder( String name )
     {
         RunOrder[] runOrders = values();
-        StringBuilder message = new StringBuilder( "There's no RunOrder with the name " );
+        StringBuilder message = new StringBuilder( "There's no RunOrder matching the name " );
         message.append( name );
         message.append( ". Please use one of the following RunOrders: " );
         for ( int i = 0; i < runOrders.length; i++ )
@@ -133,9 +135,15 @@ public class RunOrder
         this.name = name;
     }
 
-    private boolean matches( String anotherName )
+    public boolean matches( String anotherName )
     {
-        return name.equalsIgnoreCase( anotherName );
+        return name.equalsIgnoreCase( anotherName ) || getMatcher( anotherName ).matches();
+    }
+
+    public Matcher getMatcher( String anotherName )
+    {
+        return Pattern.compile( name, Pattern.CASE_INSENSITIVE )
+            .matcher( anotherName );
     }
 
     public String name()

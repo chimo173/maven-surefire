@@ -282,6 +282,10 @@ public class SurefirePlugin
      * overall execution time. Initially a statistics file is created and every next test run will reorder classes.
      * <br>
      * <br>
+     * Random will output a seed if none is provided (search for "To reproduce ordering use flag -Dsurefire.runOrder").
+     * To reproduce a random test order, provide a seed by specifying it after {@code random}. E.g., {@code randomXXX}.
+     * <br>
+     * <br>
      * Note that the statistics are stored in a file named <b>.surefire-XXXXXXXXX</b> beside <i>pom.xml</i> and
      * should not be checked into version control. The "XXXXX" is the SHA1 checksum of the entire surefire
      * configuration, so different configurations will have different statistics files, meaning if you change any
@@ -292,20 +296,6 @@ public class SurefirePlugin
     @Parameter( property = "surefire.runOrder", defaultValue = "filesystem" )
     private String runOrder;
 
-    /**
-     * Sets the random seed that will be used to order the tests if {@code surefire.runOrder} is set to {@code random}.
-     * <br>
-     * <br>
-     * If no seeds are set and {@code surefire.runOrder} is set to {@code random}, then the seed used will be
-     * outputted (search for "To reproduce ordering use flag -Dsurefire.seed").
-     * <br>
-     * <br>
-     * To deterministically reproduce any random test order that was run before, simply set the seed to 
-     * be the same value.
-     *
-     * @since 3.0.0-M6
-     */
-    @Parameter( property = "surefire.seed" )
     private Long randomSeed;
 
     /**

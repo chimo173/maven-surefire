@@ -80,7 +80,7 @@ public class DefaultRunOrderCalculator
 
     private void orderTestClasses( List<Class<?>> testClasses, RunOrder runOrder )
     {
-        if ( RunOrder.RANDOM.equals( runOrder ) )
+        if ( RunOrder.RANDOM.matches( runOrder.name() ) )
         {
             Collections.shuffle( testClasses, random );
         }
