@@ -2385,22 +2385,22 @@ public class AbstractSurefireMojoTest
         public String getMethodRunOrder()
         {
             return null;
+        };
+
+        @Override
+        public Long getRunOrderRandomSeed()
+        {
+            return null;
+        }
+
+        @Override
+        public void setRunOrderRandomSeed( Long runOrderRandomSeed )
+        {
+
         }
 
         @Override
         protected void handleSummary( RunResult summary, Exception firstForkException )
-        {
-
-        }
-
-        @Override
-        public long getRandomSeed()
-        {
-            return 0;
-        }
-
-        @Override
-        public void setRandomSeed( long seed )
         {
 
         }

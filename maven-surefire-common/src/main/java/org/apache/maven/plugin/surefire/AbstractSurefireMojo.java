@@ -868,9 +868,9 @@ public abstract class AbstractSurefireMojo
 
     public abstract String getMethodRunOrder();
 
-    public abstract long getRandomSeed();
+    public abstract Long getRunOrderRandomSeed();
 
-    public abstract void setRandomSeed( long seed );
+    public abstract void setRunOrderRandomSeed( Long runOrderRandomSeed );
 
     protected abstract void handleSummary( RunResult summary, Exception firstForkException )
         throws MojoExecutionException, MojoFailureException;
@@ -1137,6 +1137,7 @@ public abstract class AbstractSurefireMojo
             warnIfIllegalTempDir();
             printDefaultSeedIfNecessary();
             warnIfForkCountIsZero();
+            printDefaultSeedIfNecessary();
         }
         return true;
     }
@@ -1293,8 +1294,8 @@ public abstract class AbstractSurefireMojo
         ClassLoaderConfiguration classLoaderConfiguration = getClassLoaderConfiguration();
         provider.addProviderProperties();
         RunOrderParameters runOrderParameters =
-            new RunOrderParameters( getRunOrder(), getStatisticsFile( getConfigChecksum() ), getRandomSeed(),
-                getMethodRunOrder() );
+            new RunOrderParameters( getRunOrder(), getStatisticsFile( getConfigChecksum() ), getRunOrderRandomSeed(),
+                                    getMethodRunOrder() );
 
         if ( isNotForking() )
         {
@@ -3063,15 +3064,15 @@ public abstract class AbstractSurefireMojo
 
     private void printDefaultSeedIfNecessary()
     {
-        if ( getRandomSeed() == 0 && ( getRunOrder().equals( RunOrder.RANDOM.name() ) || getMethodRunOrder().equals(
-            MethodRunOrder.RANDOM.name() ) ) )
+        if ( getRunOrderRandomSeed() == null
+             && ( getRunOrder().equals( RunOrder.RANDOM.name() )
+                  || getMethodRunOrder().equals( MethodRunOrder.RANDOM.name() ) ) )
         {
-            setRandomSeed( System.nanoTime() );
+            setRunOrderRandomSeed( System.nanoTime() );
             getConsoleLogger().info(
                 "Tests will run in random order. To reproduce ordering use flag -D"
-                    + getPluginName() + ".seed=" + getRandomSeed() );
+                    + getPluginName() + ".runOrder.random.seed=" + getRunOrderRandomSeed() );
         }
-
     }
 
     final class TestNgProviderInfo

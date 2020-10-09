@@ -319,6 +319,22 @@ public class IntegrationTestMojo
 
 
     /**
+     * Sets the random seed that will be used to order the tests if {@code failsafe.runOrder} is set to {@code random}.
+     * <br>
+     * <br>
+     * If no seeds are set and {@code failsafe.runOrder} is set to {@code random}, then the seed used will be
+     * outputted (search for "To reproduce ordering use flag -Dfailsafe.runOrder.random.seed").
+     * <br>
+     * <br>
+     * To deterministically reproduce any random test order that was run before, simply set the seed to 
+     * be the same value.
+     *
+     * @since 3.0.0-M6
+     */
+    @Parameter( property = "failsafe.runOrder.random.seed" )
+    private Long runOrderRandomSeed;
+
+    /**
      * A file containing include patterns, each in a next line. Blank lines, or lines starting with # are ignored.
      * If {@code includes} are also specified, these patterns are appended. Example with path, simple and regex
      * includes:
@@ -900,21 +916,21 @@ public class IntegrationTestMojo
     }
 
     @Override
-    public long getRandomSeed()
-    {
-        return randomSeed;
-    }
-
-    @Override
-    public void setRandomSeed( long randomSeed )
-    {
-        this.randomSeed = randomSeed;
-    }
-
-    @Override
     public String getMethodRunOrder()
     {
         return methodRunOrder;
+    }
+
+    @Override
+    public Long getRunOrderRandomSeed()
+    {
+        return runOrderRandomSeed;
+    }
+
+    @Override
+    public void setRunOrderRandomSeed( Long runOrderRandomSeed )
+    {
+        this.runOrderRandomSeed = runOrderRandomSeed;
     }
 
     @Override

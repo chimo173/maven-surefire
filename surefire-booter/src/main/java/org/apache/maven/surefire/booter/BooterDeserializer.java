@@ -102,6 +102,7 @@ public class BooterDeserializer
         final List<String> testSuiteXmlFiles = properties.getStringList( TEST_SUITE_XML_FILES );
         final File testClassesDirectory = properties.getFileProperty( TEST_CLASSES_DIRECTORY );
         final String runOrder = properties.getProperty( RUN_ORDER );
+        final Long runOrderRandomSeed = properties.getLongProperty( RUN_ORDER_RANDOM_SEED );
         final String runStatisticsFile = properties.getProperty( RUN_STATISTICS_FILE );
         final String methodRunOrder = properties.getProperty( METHOD_RUN_ORDER );
         final long randomSeed = properties.getLongProperty( RANDOM_SEED );
@@ -114,7 +115,7 @@ public class BooterDeserializer
 
         RunOrderParameters runOrderParameters
                 = new RunOrderParameters( runOrder, runStatisticsFile == null ? null : new File( runStatisticsFile ),
-            randomSeed, methodRunOrder );
+                                          runOrderRandomSeed, methodRunOrder );
 
         TestArtifactInfo testNg = new TestArtifactInfo( testNgVersion, testArtifactClassifier );
         TestRequest testSuiteDefinition =

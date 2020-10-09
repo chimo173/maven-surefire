@@ -277,7 +277,7 @@ public class BooterDeserializerProviderConfigurationTest
             new TestRequest( getSuiteXmlFileStrings(), getTestSourceDirectory(),
                              new TestListResolver( USER_REQUESTED_TEST + "#aUserRequestedTestMethod" ),
                     RERUN_FAILING_TEST_COUNT );
-        RunOrderParameters runOrderParameters = new RunOrderParameters( RunOrder.DEFAULT, null, 0,
+        RunOrderParameters runOrderParameters = new RunOrderParameters( RunOrder.DEFAULT, null, null,
             MethodRunOrder.DEFAULT );
         return new ProviderConfiguration( directoryScannerParameters, runOrderParameters, true, reporterConfiguration,
                 new TestArtifactInfo( "5.0", "ABC" ), testSuiteDefinition, new HashMap<String, String>(), TEST_TYPED,

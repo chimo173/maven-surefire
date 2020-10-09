@@ -178,11 +178,12 @@ public final class SurefireReflector
             return null;
         }
         //Can't use the constructor with the RunOrder parameter. Using it causes some integration tests to fail.
-        Class<?>[] arguments = { String.class, File.class };
+        Class<?>[] arguments = { String.class, File.class, Long.class };
         Constructor<?> constructor = getConstructor( this.runOrderParameters, arguments );
         File runStatisticsFile = runOrderParameters.getRunStatisticsFile();
         return newInstance( constructor, RunOrder.asString( runOrderParameters.getRunOrder() ), runStatisticsFile,
-            runOrderParameters.getRandomSeed(), runOrderParameters.getMethodRunOrder().toString() );
+                            runOrderParameters.getRunOrderRandomSeed(),
+                            runOrderParameters.getMethodRunOrder().toString() );
     }
 
     private Object createTestArtifactInfo( TestArtifactInfo testArtifactInfo )

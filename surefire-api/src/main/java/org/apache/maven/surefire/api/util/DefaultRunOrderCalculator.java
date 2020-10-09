@@ -23,6 +23,10 @@ import org.apache.maven.surefire.api.runorder.RunEntryStatisticsMap;
 import org.apache.maven.surefire.api.testset.RunOrderParameters;
 import org.apache.maven.surefire.util.MethodRunOrder;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -32,12 +36,6 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
-
-import java.nio.file.Files;
-import java.nio.charset.Charset;
-import java.io.IOException;
-import java.io.File;
-
 
 /**
  * Applies the final runorder of the tests
@@ -57,14 +55,19 @@ public class DefaultRunOrderCalculator
 
     private final Random random;
 
-
     public DefaultRunOrderCalculator( RunOrderParameters runOrderParameters, int threadCount )
     {
         this.runOrderParameters = runOrderParameters;
         this.threadCount = threadCount;
         this.runOrder = runOrderParameters.getRunOrder();
         this.sortOrder = this.runOrder.length > 0 ? getSortOrderComparator( this.runOrder[0] ) : null;
-        this.random = new Random( runOrderParameters.getRandomSeed() );
+        Long runOrderRandomSeed = runOrderParameters.getRunOrderRandomSeed();
+        if ( runOrderRandomSeed == null )
+        {
+            runOrderRandomSeed = System.nanoTime();
+            runOrderParameters.setRunOrderRandomSeed( runOrderRandomSeed );
+        }
+        this.random = new Random( runOrderRandomSeed );
     }
 
     @Override
