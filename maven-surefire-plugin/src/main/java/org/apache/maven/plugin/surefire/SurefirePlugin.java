@@ -297,13 +297,9 @@ public class SurefirePlugin
     @Parameter( property = "surefire.runOrder", defaultValue = "filesystem" )
     private String runOrder;
 
-
     //TODO docs
     @Parameter( property = "surefire.methodRunOrder", defaultValue = "default" )
     private String methodRunOrder;
-
-    @Parameter( property = "surefire.seed" )
-    private long randomSeed;
 
     /**
      * Sets the random seed that will be used to order the tests if {@code surefire.runOrder} is set to {@code random}.

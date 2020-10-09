@@ -314,10 +314,6 @@ public class IntegrationTestMojo
     @Parameter( property = "failsafe.methodRunOrder", defaultValue = "default" )
     private String methodRunOrder;
 
-    @Parameter( property = "failsafe.seed" )
-    private long randomSeed;
-
-
     /**
      * Sets the random seed that will be used to order the tests if {@code failsafe.runOrder} is set to {@code random}.
      * <br>

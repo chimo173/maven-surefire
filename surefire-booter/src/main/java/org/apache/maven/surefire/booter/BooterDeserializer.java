@@ -105,7 +105,6 @@ public class BooterDeserializer
         final Long runOrderRandomSeed = properties.getLongProperty( RUN_ORDER_RANDOM_SEED );
         final String runStatisticsFile = properties.getProperty( RUN_STATISTICS_FILE );
         final String methodRunOrder = properties.getProperty( METHOD_RUN_ORDER );
-        final long randomSeed = properties.getLongProperty( RANDOM_SEED );
 
         final int rerunFailingTestsCount = properties.getIntProperty( RERUN_FAILING_TESTS_COUNT );
 
