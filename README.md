@@ -53,6 +53,17 @@ Then running the Maven command above will result in the tests running in the fol
 3. org.apache.dubbo.rpc.protocol.dubbo.DubboProtocolTest.testDubboProtocolWithMina
 
 
+## Random with seed
+
+This change has been merged to [apache/maven-surefire](https://github.com/apache/maven-surefire/pull/309).
+
+Specifically, Surefire will:
+
+1. Output of the random seed used to generate a particular random test order when -Dsurefire.runOrder=random or -Dfailsafe.runOrder=random is set
+2. Replay a previously observed random test order by setting -Dsurefire.runOrder.random.seed and -Dfailsafe.runOrder.random.seed to the seed that observed the random test order
+
+Some tests were added to Surefire for this feature. These tests ensure that the setting of the same random seeds do create the same test orders and different random seeds do create different test orders. Note that the inherent randomness of the orders does mean that the tests can be flaky (nondeterministically pass or fail without changes to the code). The current tests have a rate of 0.4% (1/3)^5 of failing. Increasing the number of tests (3) or the number of times to loop (5) would decrease the odds of the tests failing.
+
 ## Caveats
 
 1. **Test methods from different test classes cannot interleave.**  When test methods from various test classes interleave, all test methods from the first time the test class runs will run then as well. E.g., If tests ClassA.testA, ClassB.testA, ClassA.testB are provided, then the run order will be ClassA.testA, ClassA.testB, ClassB.testA.
@@ -63,8 +74,7 @@ Then running the Maven command above will result in the tests running in the fol
 
 The following are features that we would like to have but are yet to be supported.
 
-1. Randomize every test in a class (mostly done by Jon already)
-  - Randomize with seed, prints the seed somewhere
-2. Have surefire reports save the order in which the test classes are run
-3. Allow one to get just the test order list without running tests
-4. Reverse mode
+1. Have surefire reports save the order in which the test classes are run
+2. Allow one to get just the test order list without running tests
+3. Reverse mode
+4. Have Surefire fix order-dependent tests observed in last run

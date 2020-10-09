@@ -200,7 +200,7 @@ public class DefaultRunOrderCalculator
     private void orderTestClasses( List<Class<?>> testClasses, RunOrder runOrder )
     {
         if ( System.getProperty( "surefire.methodRunOrder" ) != null
-             && System.getProperty( "surefire.methodRunOrder" ).toLowerCase().equals( "flakyfinding" ) )
+             && System.getProperty( "surefire.methodRunOrder" ).toLowerCase().equals( "fixed" ) )
         {
             List<Class<?>> sorted
                 = sortClassesBySpecifiedOrder( testClasses, parseFlakyTestOrder( System.getProperty( "test" ) ) );
