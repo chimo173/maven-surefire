@@ -37,7 +37,7 @@ Specifically, running the command above will result in the tests running in the 
 mvn test -Dtest=path_to_file -Dsurefire.methodRunOrder=fixed -pl dubbo-rpc/dubbo-rpc-dubbo
 ```
 
-By specifying ```-Dsurefire.methodRunOrder=fixed``` Maven test will run the specifed tests in the order that they appear in the file ```path_to_file```.
+By specifying ```-Dsurefire.methodRunOrder=fixed``` Maven test will run the specifed tests in the order that they appear in the file ```path_to_file```. Note that the ```path_to_file``` should be an **absolute** path (e.g., ```/home/user/project/test-list```).
 
 Assume the content of ```path_to_file``` are the following:
 
