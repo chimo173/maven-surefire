@@ -10,7 +10,7 @@ This repository is a fork of Maven Surefire that contains two main modifications
 To use the plugin, please ensure you are on the `test-method-sorting` branch and then perform the following steps.
 
 1. Run ```mvn install -DskipTests -Drat.skip``` in this directory
-2. Copy ```surefire-changing-maven-extension/target/surefire-changing-maven-extension-1.0-SNAPSHOT.jar``` into your Maven installation's ```lib/ext``` directory
+2. Copy ```surefire-changing-maven-extension/target/surefire-changing-maven-extension-1.0-SNAPSHOT.jar``` into your Maven installation's ```lib/ext``` directory. This [StackOverflow post](https://stackoverflow.com/a/39479104) may help indicate where your Maven installation is located
 
 The copying of the extension helps ensure that any project you run ```mvn test``` on will now use this custom version of Surefire and change certain settings (e.g., reuseForks to false) to prevent issues with fixing the ordering of tests. More information on how to use Maven extensions can be found [here](https://maven.apache.org/examples/maven-3-lifecycle-extensions.html#use-your-extension-in-your-build-s). Note that if you already have ```surefire-changing-maven-extension-1.0-SNAPSHOT.jar``` in your Maven installation's ```lib/ext``` you must first remove the jar before installing again.
 
