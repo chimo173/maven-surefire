@@ -32,6 +32,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -146,39 +147,60 @@ public class DefaultRunOrderCalculator
             {
                 throw new IllegalStateException( "Please set system property -Dtest to use fixed order" );
             }
-            final HashMap<String, Integer> orders = new HashMap<>();
-            int i = 0;
+            final LinkedHashMap<String, List<String>> orders = new LinkedHashMap<>();
             for ( String s : orderParam.split( "," ) )
             {
-                orders.put( changeTestNameFormatHashToParen( s ), i );
-                i++;
+                String[] nameSplit = s.split( "#" );
+                String className = nameSplit[0];
+                String testName = nameSplit[1];
+                String parenName = testName + "(" + className + ")";
+                addTestToOrders( className, orders, parenName );
             }
             return new Comparator<String>()
             {
-                int getRank( String o )
-                {
-                    synchronized ( orders )
-                    {
-                        if ( !orders.containsKey( o ) )
-                        {
-                            orders.put( o, orders.size() );
-                        }
-                        return orders.get( o );
-                    }
-                }
 
                 @Override
                 public int compare( String o1, String o2 )
                 {
-                    int r1 = getRank( o1 );
-                    int r2 = getRank( o2 );
-                    if ( r1 < r2 )
+                    String className1 = o1;
+                    if ( o1.contains( "(" ) )
                     {
-                        return -1;
+                        String[] nameSplit1 = o1.split( "\\(" );
+                        className1 = nameSplit1[1].substring( 0, nameSplit1[1].length() - 1 );
+                        addTestToOrders( className1, orders, o1 );
+                    }
+
+                    String className2 = o2;
+                    if ( o2.contains( "(" ) )
+                    {
+                        String[] nameSplit2 = o2.split( "\\(" );
+                        className2 = nameSplit2[1].substring( 0, nameSplit2[1].length() - 1 );
+                        addTestToOrders( className2, orders, o2 );
+                    }
+
+                    if ( ! className2.equals( className1 ) )
+                    {
+                        List<String> classOrders = new ArrayList<String>( orders.keySet() );
+                        if ( classOrders.indexOf( className1 ) < classOrders.indexOf( className2 ) )
+                        {
+                            return -1;
+                        }
+                        else
+                        {
+                            return 1;
+                        }
                     }
                     else
                     {
-                        return 1;
+                        List<String> testOrders = orders.get( className2 );
+                        if ( testOrders.indexOf( o1 ) < testOrders.indexOf( o2 ) )
+                        {
+                            return -1;
+                        }
+                        else
+                        {
+                            return 1;
+                        }
                     }
                 }
             };
@@ -189,12 +211,21 @@ public class DefaultRunOrderCalculator
         }
     }
 
-    public String changeTestNameFormatHashToParen( String hashTestName )
+    public void addTestToOrders( String className, LinkedHashMap<String, List<String>> orders, String parenName )
     {
-        String[] nameSplit = hashTestName.split( "#" );
-        String className = nameSplit[0];
-        String testName = nameSplit[1];
-        return testName + "(" + className + ")";
+        List<String> classOrders = orders.get( className );
+        if ( classOrders == null )
+        {
+            classOrders = new ArrayList<String>();
+        }
+        if ( ! classOrders.contains( parenName ) )
+        {
+            classOrders.add( parenName );
+        }
+        if ( ! orders.containsKey( className ) )
+        {
+            orders.put( className, classOrders );
+        }
     }
 
     private void orderTestClasses( List<Class<?>> testClasses, RunOrder runOrder )
