@@ -52,7 +52,7 @@ import org.apache.maven.surefire.api.report.SimpleReportEntry;
 import org.apache.maven.surefire.api.report.StackTraceWriter;
 import org.apache.maven.surefire.api.report.TestSetReportEntry;
 import org.apache.maven.surefire.extensions.EventHandler;
-import org.apache.maven.surefire.extensions.ForkNodeArguments;
+import org.apache.maven.surefire.api.fork.ForkNodeArguments;
 import org.apache.maven.surefire.extensions.util.CountdownCloseable;
 import org.junit.Test;
 
@@ -302,7 +302,8 @@ public class ForkClientTest
         assertThat( logger.isDebugEnabledCalled )
             .isTrue();
 
-        String msg = "Corrupted STDOUT by directly writing to native stream in forked JVM 0. Stream 'unordered error'.";
+        String msg =
+            "Corrupted channel by directly writing to native stream in forked JVM 0. Stream 'unordered error'.";
         assertThat( arguments.dumpStreamText )
             .hasSize( 1 )
             .contains( msg );
@@ -310,7 +311,7 @@ public class ForkClientTest
         assertThat( arguments.logWarningAtEnd )
             .hasSize( 1 );
         assertThat( arguments.logWarningAtEnd.peek() )
-            .startsWith( "Corrupted STDOUT by directly writing to native stream in forked JVM 0. "
+            .startsWith( "Corrupted channel by directly writing to native stream in forked JVM 0. "
                 + "See FAQ web page and the dump file" );
     }
 
@@ -1883,6 +1884,18 @@ public class ForkClientTest
         {
             return !dumpStreamText.isEmpty() || !logWarningAtEnd.isEmpty();
         }
+
+        @Override
+        public File getEventStreamBinaryFile()
+        {
+            return null;
+        }
+
+        @Override
+        public File getCommandStreamBinaryFile()
+        {
+            return null;
+        }
     }
 
     /**
@@ -1897,9 +1910,9 @@ public class ForkClientTest
         final boolean isInfo;
         final boolean isWarning;
         final boolean isError;
-        boolean called;
-        boolean isDebugEnabledCalled;
-        boolean isInfoEnabledCalled;
+        private volatile boolean called;
+        private volatile boolean isDebugEnabledCalled;
+        private volatile boolean isInfoEnabledCalled;
 
         ConsoleLoggerMock( boolean isDebug, boolean isInfo, boolean isWarning, boolean isError )
         {
@@ -1910,7 +1923,7 @@ public class ForkClientTest
         }
 
         @Override
-        public boolean isDebugEnabled()
+        public synchronized boolean isDebugEnabled()
         {
             isDebugEnabledCalled = true;
             called = true;
@@ -1918,14 +1931,14 @@ public class ForkClientTest
         }
 
         @Override
-        public void debug( String message )
+        public synchronized void debug( String message )
         {
             debug.add( message );
             called = true;
         }
 
         @Override
-        public boolean isInfoEnabled()
+        public synchronized boolean isInfoEnabled()
         {
             isInfoEnabledCalled = true;
             called = true;
@@ -1933,52 +1946,52 @@ public class ForkClientTest
         }
 
         @Override
-        public void info( String message )
+        public synchronized void info( String message )
         {
             info.add( message );
             called = true;
         }
 
         @Override
-        public boolean isWarnEnabled()
+        public synchronized boolean isWarnEnabled()
         {
             called = true;
             return isWarning;
         }
 
         @Override
-        public void warning( String message )
+        public synchronized void warning( String message )
         {
             called = true;
         }
 
         @Override
-        public boolean isErrorEnabled()
+        public synchronized boolean isErrorEnabled()
         {
             called = true;
             return isError;
         }
 
         @Override
-        public void error( String message )
+        public synchronized void error( String message )
         {
             error.add( message );
             called = true;
         }
 
         @Override
-        public void error( String message, Throwable t )
+        public synchronized void error( String message, Throwable t )
         {
             called = true;
         }
 
         @Override
-        public void error( Throwable t )
+        public synchronized void error( Throwable t )
         {
             called = true;
         }
 
-        boolean isCalled()
+        synchronized boolean isCalled()
         {
             return called;
         }

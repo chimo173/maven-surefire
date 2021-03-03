@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.surefire.booterclient.ChecksumCalculator;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -259,6 +260,15 @@ public class SurefirePlugin
     private int rerunFailingTestsCount;
 
     /**
+     * Set this to a value greater than 0 to fail the whole test set if the cumulative number of flakes reaches
+     * this threshold. Set to 0 to allow an unlimited number of flakes.
+     *
+     * @since 3.0.0-M6
+     */
+    @Parameter( property = "surefire.failOnFlakeCount", defaultValue = "0" )
+    private int failOnFlakeCount;
+
+    /**
      * (TestNG) List of &lt;suiteXmlFile&gt; elements specifying TestNG suite xml file locations. Note that
      * {@code suiteXmlFiles} is incompatible with several other parameters of this plugin, like
      * {@code includes} and {@code excludes}.<br>
@@ -309,7 +319,7 @@ public class SurefirePlugin
      * outputted (search for "To reproduce ordering use flag -Dsurefire.runOrder.random.seed").
      * <br>
      * <br>
-     * To deterministically reproduce any random test order that was run before, simply set the seed to 
+     * To deterministically reproduce any random test order that was run before, simply set the seed to
      * be the same value.
      *
      * @since 3.0.0-M6
@@ -380,10 +390,10 @@ public class SurefirePlugin
     private String shutdown;
 
     /**
-     * Disables modular path (aka Jigsaw project since of Java 9) even if <i>module-info.java</i> is used in project.
+     * When {@code true}, uses the modulepath when executing with JDK 9+ and <i>module-info.java</i> is
+     * present. When {@code false}, always uses the classpath.
      * <br>
-     * Enabled by default.
-     * If enabled, <i>module-info.java</i> exists and executes with JDK 9+, modular path is used.
+     * Defaults to {@code true}.
      *
      * @since 3.0.0-M2
      */
@@ -472,6 +482,18 @@ public class SurefirePlugin
     }
 
     @Override
+    public int getFailOnFlakeCount()
+    {
+        return failOnFlakeCount;
+    }
+
+    @Override
+    public void setFailOnFlakeCount( int failOnFlakeCount )
+    {
+        this.failOnFlakeCount = failOnFlakeCount;
+    }
+
+    @Override
     protected void handleSummary( RunResult summary, Exception firstForkException )
         throws MojoExecutionException, MojoFailureException
     {
@@ -501,7 +523,7 @@ public class SurefirePlugin
     {
         return "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd";
     }
-    
+
 
     public File getSystemPropertiesFile()
     {
@@ -913,5 +935,24 @@ public class SurefirePlugin
     protected final ForkNodeFactory getForkNode()
     {
         return forkNode;
+    }
+
+    @Override
+    protected void warnIfIllegalFailOnFlakeCount() throws MojoFailureException
+    {
+        if ( failOnFlakeCount < 0 )
+        {
+            throw new MojoFailureException( "Parameter \"failOnFlakeCount\" should not be negative." );
+        }
+        if ( failOnFlakeCount > 0 && rerunFailingTestsCount < 1 )
+        {
+            throw new MojoFailureException( "\"failOnFlakeCount\" requires rerunFailingTestsCount to be at least 1." );
+        }
+    }
+
+    @Override
+    protected void addPluginSpecificChecksumItems( ChecksumCalculator checksum )
+    {
+        checksum.add( skipAfterFailureCount );
     }
 }

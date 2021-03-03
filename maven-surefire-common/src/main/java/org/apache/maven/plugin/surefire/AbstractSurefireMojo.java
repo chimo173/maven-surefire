@@ -1137,6 +1137,7 @@ public abstract class AbstractSurefireMojo
             warnIfIllegalTempDir();
             printDefaultSeedIfNecessary();
             warnIfForkCountIsZero();
+            warnIfIllegalFailOnFlakeCount();
             printDefaultSeedIfNecessary();
         }
         return true;
@@ -1146,8 +1147,8 @@ public abstract class AbstractSurefireMojo
     {
         if ( "0".equals( getForkCount() ) )
         {
-            getConsoleLogger().warning( "The parameter forkCount should likely not be 0, not forking a JVM for tests "
-                + "reduce test accuracy, ensure to have a <forkCount> >= 1." );
+            getConsoleLogger().warning( "The parameter forkCount should likely not be 0. Forking a JVM for tests "
+                + "improves test accuracy. Ensure to have a <forkCount> >= 1." );
         }
     }
 
@@ -2575,8 +2576,7 @@ public abstract class AbstractSurefireMojo
         String debugForkedProcess = getDebugForkedProcess();
         if ( "true".equals( debugForkedProcess ) )
         {
-            return "-Xdebug -Xnoagent -Djava.compiler=NONE"
-                + " -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005";
+            return "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=localhost:5005";
         }
         return debugForkedProcess;
     }
@@ -3060,6 +3060,11 @@ public abstract class AbstractSurefireMojo
         {
             throw new MojoFailureException( "Parameter 'tempDir' should not be blank string." );
         }
+    }
+
+    protected void warnIfIllegalFailOnFlakeCount() throws MojoFailureException
+    {
+
     }
 
     private void printDefaultSeedIfNecessary()

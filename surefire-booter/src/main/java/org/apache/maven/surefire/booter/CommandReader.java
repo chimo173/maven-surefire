@@ -33,6 +33,7 @@ import org.apache.maven.surefire.api.testset.TestSetFailedException;
 
 import java.io.EOFException;
 import java.io.IOException;
+import java.nio.channels.ClosedChannelException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Queue;
@@ -336,11 +337,11 @@ public final class CommandReader implements CommandChainReader
         {
             CommandReader.this.startMonitor.countDown();
             boolean isTestSetFinished = false;
-            try
+            try ( MasterProcessChannelDecoder commandReader = CommandReader.this.decoder )
             {
                 while ( CommandReader.this.state.get() == RUNNABLE )
                 {
-                    Command command = CommandReader.this.decoder.decode();
+                    Command command = commandReader.decode();
                     switch ( command.getCommandType() )
                     {
                         case RUN_CLASS:
@@ -375,7 +376,7 @@ public final class CommandReader implements CommandChainReader
                     }
                 }
             }
-            catch ( EOFException e )
+            catch ( EOFException | ClosedChannelException e )
             {
                 CommandReader.this.state.set( TERMINATED );
                 if ( !isTestSetFinished )
