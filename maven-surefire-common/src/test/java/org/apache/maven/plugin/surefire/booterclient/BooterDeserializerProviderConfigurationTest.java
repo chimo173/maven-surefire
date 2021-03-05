@@ -21,6 +21,7 @@ package org.apache.maven.plugin.surefire.booterclient;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
+import org.apache.maven.surefire.shared.io.FileUtils;
 import org.apache.maven.surefire.booter.BooterDeserializer;
 import org.apache.maven.surefire.booter.ClassLoaderConfiguration;
 import org.apache.maven.surefire.booter.ClasspathConfiguration;
@@ -38,7 +39,6 @@ import org.apache.maven.surefire.api.testset.TestArtifactInfo;
 import org.apache.maven.surefire.api.testset.TestListResolver;
 import org.apache.maven.surefire.api.testset.TestRequest;
 import org.apache.maven.surefire.api.util.RunOrder;
-import org.apache.maven.surefire.shared.io.FileUtils;
 import org.apache.maven.surefire.util.MethodRunOrder;
 import org.junit.After;
 import org.junit.Before;

@@ -19,10 +19,10 @@ package org.apache.maven.surefire.api.testset;
  * under the License.
  */
 
+import java.io.File;
+
 import org.apache.maven.surefire.api.util.RunOrder;
 import org.apache.maven.surefire.util.MethodRunOrder;
-
-import java.io.File;
 
 /**
  * @author Kristian Rosenvold

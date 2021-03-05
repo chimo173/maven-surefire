@@ -267,26 +267,26 @@ public class DefaultRunOrderCalculator
     private String parseFlakyTestOrder( String s )
     {
         if ( s != null && s != "" )
+        {
+            File f = new File( s );
+            if ( f.exists() && !f.isDirectory ( ) )
             {
-                File f = new File( s );
-                if ( f.exists() && !f.isDirectory ( ) )
+                try
+                {
+                    List<String> l = Files.readAllLines( f.toPath(), Charset.defaultCharset( ) );
+                    StringBuilder sb = new StringBuilder( );
+                    for ( String sd : l )
                     {
-                        try
-                            {
-                                List<String> l = Files.readAllLines( f.toPath(), Charset.defaultCharset( ) );
-                                StringBuilder sb = new StringBuilder( );
-                                for ( String sd : l )
-                                    {
-                                        sb.append( sd + "," );
-                                    }
-                                String sd = sb.toString( );
-                                return sd.substring( 0 , sd.length( ) - 1 );
-                            }
-                        catch ( IOException e )
-                            {
-                            }
+                        sb.append( sd + "," );
                     }
+                    String sd = sb.toString( );
+                    return sd.substring( 0 , sd.length( ) - 1 );
+                }
+                catch ( IOException e )
+                {
+                }
             }
+        }
         return s;
     }
 

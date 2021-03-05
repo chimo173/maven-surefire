@@ -1135,7 +1135,6 @@ public abstract class AbstractSurefireMojo
             warnIfWrongShutdownValue();
             warnIfNotApplicableSkipAfterFailureCount();
             warnIfIllegalTempDir();
-            printDefaultSeedIfNecessary();
             warnIfForkCountIsZero();
             warnIfIllegalFailOnFlakeCount();
             printDefaultSeedIfNecessary();
