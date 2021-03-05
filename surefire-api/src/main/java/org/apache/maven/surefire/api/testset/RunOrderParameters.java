@@ -20,7 +20,6 @@ package org.apache.maven.surefire.api.testset;
  */
 
 import java.io.File;
-
 import org.apache.maven.surefire.api.util.RunOrder;
 import org.apache.maven.surefire.util.MethodRunOrder;
 
