@@ -86,7 +86,6 @@ import org.apache.maven.surefire.api.testset.TestRequest;
 import org.apache.maven.surefire.api.testset.TestSetFailedException;
 import org.apache.maven.surefire.api.util.DefaultScanResult;
 import org.apache.maven.surefire.api.util.RunOrder;
-import org.apache.maven.surefire.util.MethodRunOrder;
 import org.apache.maven.toolchain.DefaultToolchain;
 import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
@@ -680,7 +679,7 @@ public abstract class AbstractSurefireMojo
      *
      * @since 2.2
      */
-    @Parameter( property = "trimStackTrace", defaultValue = "false" )
+    @Parameter( property = "trimStackTrace", defaultValue = "true" )
     private boolean trimStackTrace;
 
     /**
@@ -865,8 +864,6 @@ public abstract class AbstractSurefireMojo
     public abstract String getRunOrder();
 
     public abstract void setRunOrder( String runOrder );
-
-    public abstract String getMethodRunOrder();
 
     public abstract Long getRunOrderRandomSeed();
 
@@ -1294,8 +1291,7 @@ public abstract class AbstractSurefireMojo
         ClassLoaderConfiguration classLoaderConfiguration = getClassLoaderConfiguration();
         provider.addProviderProperties();
         RunOrderParameters runOrderParameters =
-            new RunOrderParameters( getRunOrder(), getStatisticsFile( getConfigChecksum() ), getRunOrderRandomSeed(),
-                                    getMethodRunOrder() );
+            new RunOrderParameters( getRunOrder(), getStatisticsFile( getConfigChecksum() ), getRunOrderRandomSeed() );
 
         if ( isNotForking() )
         {
@@ -2758,7 +2754,6 @@ public abstract class AbstractSurefireMojo
         checksum.add( getObjectFactory() );
         checksum.add( getFailIfNoTests() );
         checksum.add( getRunOrder() );
-        checksum.add( getMethodRunOrder().toString() );
         checksum.add( getDependenciesToScan() );
         checksum.add( getForkedProcessExitTimeoutInSeconds() );
         checksum.add( getRerunFailingTestsCount() );
@@ -3073,9 +3068,7 @@ public abstract class AbstractSurefireMojo
 
     private void printDefaultSeedIfNecessary()
     {
-        if ( getRunOrderRandomSeed() == null
-             && ( getRunOrder().equals( RunOrder.RANDOM.name() )
-                  || getMethodRunOrder().equals( MethodRunOrder.RANDOM.name() ) ) )
+        if ( getRunOrderRandomSeed() == null && getRunOrder().equals( RunOrder.RANDOM.name() ) )
         {
             setRunOrderRandomSeed( System.nanoTime() );
             getConsoleLogger().info(

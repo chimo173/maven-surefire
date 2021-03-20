@@ -21,7 +21,6 @@ package org.apache.maven.surefire.api.util;
 
 import org.apache.maven.surefire.api.runorder.RunEntryStatisticsMap;
 import org.apache.maven.surefire.api.testset.RunOrderParameters;
-import org.apache.maven.surefire.util.MethodRunOrder;
 
 import java.io.File;
 import java.io.IOException;
@@ -89,60 +88,9 @@ public class DefaultRunOrderCalculator
     @Override
     public Comparator<String> comparatorForTestMethods()
     {
-        MethodRunOrder order = runOrderParameters.getMethodRunOrder();
-        if ( MethodRunOrder.DEFAULT.equals( order ) )
+        if ( RunOrder.TESTORDER.equals( runOrder ) )
         {
-            return null;
-        }
-        else if ( MethodRunOrder.ALPHABETICAL.equals( order ) )
-        {
-            return new Comparator<String>()
-            {
-                @Override
-                public int compare( String o1, String o2 )
-                {
-                    return o1.compareTo( o2 );
-                }
-            };
-        }
-        else if ( MethodRunOrder.REVERSE_ALPHABETICAL.equals( order ) )
-        {
-            return new Comparator<String>()
-            {
-                @Override
-                public int compare( String o1, String o2 )
-                {
-                    return o2.compareTo( o1 );
-                }
-            };
-        }
-        else if ( MethodRunOrder.RANDOM.equals( order ) )
-        {
-            return new Comparator<String>()
-            {
-                HashMap<String, Integer> randomVals = new HashMap<>();
-
-                private int getRandom( String obj )
-                {
-                    if ( !randomVals.containsKey( obj ) )
-                    {
-                        randomVals.put( obj, random.nextInt() );
-                    }
-                    return randomVals.get( obj );
-                }
-
-                @Override
-                public int compare( String o1, String o2 )
-                {
-                    int i1 = getRandom( o1 );
-                    int i2 = getRandom( o2 );
-                    return ( i1 > i2 ? 1 : -1 );
-                }
-            };
-        }
-        else if ( MethodRunOrder.FLAKY_FINDING.equals( order ) )
-        {
-            String orderParam = parseFlakyTestOrder( System.getProperty( "test" ) );
+            String orderParam = parseTestOrder( System.getProperty( "test" ) );
             if ( orderParam == null )
             {
                 throw new IllegalStateException( "Please set system property -Dtest to use fixed order" );
@@ -207,7 +155,7 @@ public class DefaultRunOrderCalculator
         }
         else
         {
-            throw new UnsupportedOperationException( "Unsupported method run order: " + order.name() );
+            return null;
         }
     }
 
@@ -230,11 +178,10 @@ public class DefaultRunOrderCalculator
 
     private void orderTestClasses( List<Class<?>> testClasses, RunOrder runOrder )
     {
-        if ( System.getProperty( "surefire.methodRunOrder" ) != null
-             && System.getProperty( "surefire.methodRunOrder" ).toLowerCase().equals( "fixed" ) )
+        if ( RunOrder.TESTORDER.equals( runOrder ) )
         {
             List<Class<?>> sorted
-                = sortClassesBySpecifiedOrder( testClasses, parseFlakyTestOrder( System.getProperty( "test" ) ) );
+                = sortClassesBySpecifiedOrder( testClasses, parseTestOrder( System.getProperty( "test" ) ) );
             testClasses.clear();
             testClasses.addAll( sorted );
         }
@@ -264,7 +211,7 @@ public class DefaultRunOrderCalculator
         }
     }
 
-    private String parseFlakyTestOrder( String s )
+    private String parseTestOrder( String s )
     {
         if ( s != null && s != "" )
         {

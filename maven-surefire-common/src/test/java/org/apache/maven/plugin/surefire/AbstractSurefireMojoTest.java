@@ -2383,12 +2383,6 @@ public class AbstractSurefireMojoTest
         }
 
         @Override
-        public String getMethodRunOrder()
-        {
-            return null;
-        };
-
-        @Override
         public Long getRunOrderRandomSeed()
         {
             return null;

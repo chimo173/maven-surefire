@@ -310,10 +310,6 @@ public class IntegrationTestMojo
     @Parameter( property = "failsafe.runOrder", defaultValue = "filesystem" )
     private String runOrder;
 
-    //TODO docs
-    @Parameter( property = "failsafe.methodRunOrder", defaultValue = "default" )
-    private String methodRunOrder;
-
     /**
      * Sets the random seed that will be used to order the tests if {@code failsafe.runOrder} is set to {@code random}.
      * <br>
@@ -909,12 +905,6 @@ public class IntegrationTestMojo
     public void setRunOrder( String runOrder )
     {
         this.runOrder = runOrder;
-    }
-
-    @Override
-    public String getMethodRunOrder()
-    {
-        return methodRunOrder;
     }
 
     @Override
