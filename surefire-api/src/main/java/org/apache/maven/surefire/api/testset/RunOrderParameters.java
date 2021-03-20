@@ -40,6 +40,13 @@ public class RunOrderParameters
         this.runOrderRandomSeed = null;
     }
 
+    public RunOrderParameters( String runOrder, File runStatisticsFile )
+    {
+        this.runOrder = runOrder == null ? RunOrder.DEFAULT : RunOrder.valueOfMulti( runOrder );
+        this.runStatisticsFile = runStatisticsFile;
+        this.runOrderRandomSeed = null;
+    }
+
     public RunOrderParameters( RunOrder[] runOrder, File runStatisticsFile, Long runOrderRandomSeed )
     {
         this.runOrder = runOrder;
@@ -54,16 +61,9 @@ public class RunOrderParameters
         this.runOrderRandomSeed = runOrderRandomSeed;
     }
 
-    public RunOrderParameters( String runOrder, File runStatisticsFile )
-    {
-        this.runOrder = runOrder == null ? RunOrder.DEFAULT : RunOrder.valueOfMulti( runOrder );
-        this.runStatisticsFile = runStatisticsFile;
-        this.runOrderRandomSeed = null;
-    }
-
     public static RunOrderParameters alphabetical()
     {
-        return new RunOrderParameters( new RunOrder[]{ RunOrder.ALPHABETICAL }, null, null );
+        return new RunOrderParameters( new RunOrder[]{ RunOrder.ALPHABETICAL }, null );
     }
 
     public RunOrder[] getRunOrder()
