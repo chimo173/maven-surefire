@@ -88,7 +88,12 @@ public class DefaultRunOrderCalculator
     @Override
     public Comparator<String> comparatorForTestMethods()
     {
-        if ( RunOrder.TESTORDER.equals( runOrder ) )
+        if ( runOrder.length != 1 )
+        {
+            throw new IllegalStateException( "Unsupported number of runOrders. Expected 1. Got: " + runOrder.length );
+        }
+        RunOrder methodRunOrder = runOrder[0];
+        if ( RunOrder.TESTORDER.equals( methodRunOrder ) )
         {
             String orderParam = parseTestOrder( System.getProperty( "test" ) );
             if ( orderParam == null )
