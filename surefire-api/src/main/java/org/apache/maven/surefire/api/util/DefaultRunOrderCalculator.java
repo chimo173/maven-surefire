@@ -105,7 +105,6 @@ public class DefaultRunOrderCalculator
         {
             return new Comparator<String>()
             {
-
                 @Override
                 public int compare( String o1, String o2 )
                 {
@@ -115,7 +114,6 @@ public class DefaultRunOrderCalculator
                     String[] classAndMethod2 = getClassAndMethod( o2 );
                     String className2 = classAndMethod2[0];
                     String methodName2 = classAndMethod2[1];
-
                     return testListResolver.testOrderComparator( className1, className2, methodName1, methodName2 );
                 }
             };
@@ -123,23 +121,6 @@ public class DefaultRunOrderCalculator
         else
         {
             return null;
-        }
-    }
-
-    public void addTestToOrders( String className, LinkedHashMap<String, List<String>> orders, String parenName )
-    {
-        List<String> classOrders = orders.get( className );
-        if ( classOrders == null )
-        {
-            classOrders = new ArrayList<String>();
-        }
-        if ( ! classOrders.contains( parenName ) )
-        {
-            classOrders.add( parenName );
-        }
-        if ( ! orders.containsKey( className ) )
-        {
-            orders.put( className, classOrders );
         }
     }
 
@@ -170,6 +151,7 @@ public class DefaultRunOrderCalculator
     {
         if ( runOrder.length > 1 && Arrays.asList( runOrder ).contains( RunOrder.TESTORDER ) )
         {
+            // Use of testorder and other runOrders are currently not supported
             throw new IllegalStateException( "Expected only testorder. Got: " + runOrder.length );
         }
         return runOrder[0];
@@ -216,6 +198,7 @@ public class DefaultRunOrderCalculator
 
     private String parseTestOrder( String s )
     {
+        // if s is a file, then parse each line of the file as a test
         if ( s != null && s != "" )
         {
             File f = new File( s );
@@ -238,26 +221,6 @@ public class DefaultRunOrderCalculator
             }
         }
         return s;
-    }
-
-    private List<Class<?>> sortClassesBySpecifiedOrder( List<Class<?>> testClasses, String flakyTestOrder )
-    {
-        HashMap<String, Class<?>> classes = new HashMap<>();
-        for ( Class<?> each : testClasses )
-        {
-            classes.put( each.getName(), each );
-        }
-        LinkedList<Class<?>> ret = new LinkedList<>();
-        for ( String s : flakyTestOrder.split( "," ) )
-        {
-            String testClass = s.substring( 0, s.indexOf( '#' ) );
-            Class<?> c = classes.remove( testClass );
-            if ( c != null )
-            {
-                ret.add( c );
-            }
-        }
-        return ret;
     }
 
     private Comparator<Class> getSortOrderComparator( RunOrder runOrder )
