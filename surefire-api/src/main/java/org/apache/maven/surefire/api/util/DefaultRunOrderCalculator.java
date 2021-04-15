@@ -21,12 +21,14 @@ package org.apache.maven.surefire.api.util;
 
 import org.apache.maven.surefire.api.runorder.RunEntryStatisticsMap;
 import org.apache.maven.surefire.api.testset.RunOrderParameters;
+import org.apache.maven.surefire.api.testset.TestListResolver;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
@@ -55,6 +57,8 @@ public class DefaultRunOrderCalculator
 
     private final Random random;
 
+    private final TestListResolver testListResolver;
+
     public DefaultRunOrderCalculator( RunOrderParameters runOrderParameters, int threadCount )
     {
         this.runOrderParameters = runOrderParameters;
@@ -68,6 +72,14 @@ public class DefaultRunOrderCalculator
             runOrderParameters.setRunOrderRandomSeed( runOrderRandomSeed );
         }
         this.random = new Random( runOrderRandomSeed );
+        if ( RunOrder.TESTORDER.equals( getRunOrderMethod() ) )
+        {
+            this.testListResolver = getTestListResolver();
+        }
+        else
+        {
+            this.testListResolver = null;
+        }
     }
 
     @Override
@@ -88,73 +100,23 @@ public class DefaultRunOrderCalculator
     @Override
     public Comparator<String> comparatorForTestMethods()
     {
-        if ( runOrder.length != 1 )
-        {
-            throw new IllegalStateException( "Unsupported number of runOrders. Expected 1. Got: " + runOrder.length );
-        }
-        RunOrder methodRunOrder = runOrder[0];
+        RunOrder methodRunOrder = getRunOrderMethod();
         if ( RunOrder.TESTORDER.equals( methodRunOrder ) )
         {
-            String orderParam = parseTestOrder( System.getProperty( "test" ) );
-            if ( orderParam == null )
-            {
-                throw new IllegalStateException( "Please set system property -Dtest to use fixed order" );
-            }
-            final LinkedHashMap<String, List<String>> orders = new LinkedHashMap<>();
-            for ( String s : orderParam.split( "," ) )
-            {
-                String[] nameSplit = s.split( "#" );
-                String className = nameSplit[0];
-                String testName = nameSplit[1];
-                String parenName = testName + "(" + className + ")";
-                addTestToOrders( className, orders, parenName );
-            }
             return new Comparator<String>()
             {
 
                 @Override
                 public int compare( String o1, String o2 )
                 {
-                    String className1 = o1;
-                    if ( o1.contains( "(" ) )
-                    {
-                        String[] nameSplit1 = o1.split( "\\(" );
-                        className1 = nameSplit1[1].substring( 0, nameSplit1[1].length() - 1 );
-                        addTestToOrders( className1, orders, o1 );
-                    }
+                    String[] classAndMethod1 = getClassAndMethod( o1 );
+                    String className1 = classAndMethod1[0];
+                    String methodName1 = classAndMethod1[1];
+                    String[] classAndMethod2 = getClassAndMethod( o2 );
+                    String className2 = classAndMethod2[0];
+                    String methodName2 = classAndMethod2[1];
 
-                    String className2 = o2;
-                    if ( o2.contains( "(" ) )
-                    {
-                        String[] nameSplit2 = o2.split( "\\(" );
-                        className2 = nameSplit2[1].substring( 0, nameSplit2[1].length() - 1 );
-                        addTestToOrders( className2, orders, o2 );
-                    }
-
-                    if ( ! className2.equals( className1 ) )
-                    {
-                        List<String> classOrders = new ArrayList<String>( orders.keySet() );
-                        if ( classOrders.indexOf( className1 ) < classOrders.indexOf( className2 ) )
-                        {
-                            return -1;
-                        }
-                        else
-                        {
-                            return 1;
-                        }
-                    }
-                    else
-                    {
-                        List<String> testOrders = orders.get( className2 );
-                        if ( testOrders.indexOf( o1 ) < testOrders.indexOf( o2 ) )
-                        {
-                            return -1;
-                        }
-                        else
-                        {
-                            return 1;
-                        }
-                    }
+                    return testListResolver.testOrderComparator( className1, className2, methodName1, methodName2 );
                 }
             };
         }
@@ -181,14 +143,50 @@ public class DefaultRunOrderCalculator
         }
     }
 
+    public TestListResolver getTestListResolver()
+    {
+        String orderParam = parseTestOrder( System.getProperty( "test" ) );
+        if ( orderParam == null  )
+        {
+            throw new IllegalStateException( "TestListResolver in RunOrderCalculator should be used only when " +
+                    "system property -Dtest is set and runOrder is testorder" );
+        }
+        return new TestListResolver( Arrays.asList( orderParam.split( "," ) ) );
+    }
+
+    public String[] getClassAndMethod( String request )
+    {
+        String[] classAndMethod = { request, request };
+        if ( request.contains( "(" ) )
+        {
+            String[] nameSplit1 = request.split( "\\(" );
+            classAndMethod[0] = nameSplit1[1].substring( 0, nameSplit1[1].length() - 1 );
+            classAndMethod[1] = nameSplit1[0];
+        }
+        return classAndMethod;
+    }
+
+    private RunOrder getRunOrderMethod()
+    {
+        if ( runOrder.length > 1 && Arrays.asList( runOrder ).contains( RunOrder.TESTORDER ) )
+        {
+            throw new IllegalStateException( "Expected only testorder. Got: " + runOrder.length );
+        }
+        return runOrder[0];
+    }
+
     private void orderTestClasses( List<Class<?>> testClasses, RunOrder runOrder )
     {
         if ( RunOrder.TESTORDER.equals( runOrder ) )
         {
-            List<Class<?>> sorted
-                = sortClassesBySpecifiedOrder( testClasses, parseTestOrder( System.getProperty( "test" ) ) );
-            testClasses.clear();
-            testClasses.addAll( sorted );
+            Collections.sort( testClasses, new Comparator<Class<?>>()
+                    {
+                        @Override
+                        public int compare( Class<?> o1, Class<?> o2 )
+                        {
+                            return testListResolver.testOrderComparator( o1.getName(), o2.getName(), null, null );
+                        }
+                    } );
         }
         else if ( RunOrder.RANDOM.equals( runOrder ) )
         {
