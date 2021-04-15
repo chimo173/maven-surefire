@@ -148,8 +148,8 @@ public class DefaultRunOrderCalculator
         String orderParam = parseTestOrder( System.getProperty( "test" ) );
         if ( orderParam == null  )
         {
-            throw new IllegalStateException( "TestListResolver in RunOrderCalculator should be used only when " +
-                    "system property -Dtest is set and runOrder is testorder" );
+            throw new IllegalStateException( "TestListResolver in RunOrderCalculator should be used only when "
+                    + "system property -Dtest is set and runOrder is testorder" );
         }
         return new TestListResolver( Arrays.asList( orderParam.split( "," ) ) );
     }
