@@ -139,6 +139,8 @@ public interface ProviderParameters
      */
     int getSkipAfterFailureCount();
 
+    boolean isOutputWithoutRunning();
+
     /**
      * @return {@code true} if test provider appears in forked jvm; Otherwise {@code false} means
      * in-plugin provider.

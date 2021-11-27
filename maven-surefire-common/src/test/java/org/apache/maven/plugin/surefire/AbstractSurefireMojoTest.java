@@ -2423,6 +2423,18 @@ public class AbstractSurefireMojoTest
         }
 
         @Override
+        public boolean isOutputWithoutRunning()
+        {
+            return false;
+        }
+
+        @Override
+        public void setOutputWithoutRunning( boolean outputWithoutRunning )
+        {
+
+        }
+
+        @Override
         protected void handleSummary( RunResult summary, Exception firstForkException )
         {
 

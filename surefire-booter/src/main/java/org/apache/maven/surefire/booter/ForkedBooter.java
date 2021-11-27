@@ -494,6 +494,7 @@ public final class ForkedBooter
         bpf.setDirectoryScannerParameters( providerConfiguration.getDirScannerParams() );
         bpf.setMainCliOptions( providerConfiguration.getMainCliOptions() );
         bpf.setSkipAfterFailureCount( providerConfiguration.getSkipAfterFailureCount() );
+        bpf.setOutputWithoutRunning( providerConfiguration.isOutputWithoutRunning() );
         bpf.setSystemExitTimeout( providerConfiguration.getSystemExitTimeout() );
         String providerClass = startupConfiguration.getActualClassName();
         return instantiateOneArg( classLoader, providerClass, ProviderParameters.class, bpf );

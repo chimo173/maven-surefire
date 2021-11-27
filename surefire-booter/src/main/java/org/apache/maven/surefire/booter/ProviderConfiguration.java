@@ -64,6 +64,8 @@ public class ProviderConfiguration
 
     private final int skipAfterFailureCount;
 
+    private final boolean outputWithoutRunning;
+
     private final Shutdown shutdown;
 
     private final Integer systemExitTimeout;
@@ -75,7 +77,7 @@ public class ProviderConfiguration
                                   TestRequest testSuiteDefinition, Map<String, String> providerProperties,
                                   TypeEncodedValue typeEncodedTestSet, boolean readTestsFromInStream,
                                   List<CommandLineOption> mainCliOptions, int skipAfterFailureCount,
-                                  Shutdown shutdown, Integer systemExitTimeout )
+                                  Shutdown shutdown, Integer systemExitTimeout, boolean outputWithoutRunning )
     {
         this.runOrderParameters = runOrderParameters;
         this.providerProperties = providerProperties;
@@ -90,6 +92,7 @@ public class ProviderConfiguration
         this.skipAfterFailureCount = skipAfterFailureCount;
         this.shutdown = shutdown;
         this.systemExitTimeout = systemExitTimeout;
+        this.outputWithoutRunning = outputWithoutRunning;
     }
 
     public ReporterConfiguration getReporterConfiguration()
@@ -162,6 +165,11 @@ public class ProviderConfiguration
     public int getSkipAfterFailureCount()
     {
         return skipAfterFailureCount;
+    }
+
+    public boolean isOutputWithoutRunning()
+    {
+        return outputWithoutRunning;
     }
 
     public Shutdown getShutdown()

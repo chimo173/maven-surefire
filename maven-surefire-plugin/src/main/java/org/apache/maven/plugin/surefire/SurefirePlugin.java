@@ -319,6 +319,15 @@ public class SurefirePlugin
     private Long runOrderRandomSeed;
 
     /**
+     * Sets this to true to get the order of test class and methods without having to wait for tests to run.
+     * Useful when some projects would take hours to run the tests.
+     * .
+     * @since 3.0.0-M6
+     */
+    @Parameter( property = "surefire.outputWithoutRunning",  defaultValue = "false" )
+    private boolean outputWithoutRunning;
+
+    /**
      * A file containing include patterns. Blank lines, or lines starting with # are ignored. If {@code includes} are
      * also specified, these patterns are appended. Example with path, simple and regex includes:
      * <pre><code>
@@ -858,6 +867,18 @@ public class SurefirePlugin
     public void setRunOrderRandomSeed( Long runOrderRandomSeed )
     {
         this.runOrderRandomSeed = runOrderRandomSeed;
+    }
+
+    @Override
+    public boolean isOutputWithoutRunning()
+    {
+        return outputWithoutRunning;
+    }
+
+    @Override
+    public void setOutputWithoutRunning( boolean outputWithoutRunning )
+    {
+        this.outputWithoutRunning = outputWithoutRunning;
     }
 
     @Override

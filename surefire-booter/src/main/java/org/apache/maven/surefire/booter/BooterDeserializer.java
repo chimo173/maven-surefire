@@ -96,6 +96,8 @@ public class BooterDeserializer
         final TypeEncodedValue typeEncodedTestForFork = properties.getTypeEncodedValue( FORKTESTSET );
         final boolean preferTestsFromInStream =
             properties.getBooleanProperty( FORKTESTSET_PREFER_TESTS_FROM_IN_STREAM );
+        final boolean outputWithoutRunning =
+            properties.getBooleanProperty( OUTPUT_WITHOUT_RUNNING );
 
         final String requestedTest = properties.getProperty( REQUESTEDTEST );
         final File sourceDirectory = properties.getFileProperty( SOURCE_DIRECTORY );
@@ -142,7 +144,7 @@ public class BooterDeserializer
                                           properties.getBooleanProperty( FAILIFNOTESTS ), reporterConfiguration, testNg,
                                           testSuiteDefinition, properties.getProperties(), typeEncodedTestForFork,
                                           preferTestsFromInStream, fromStrings( cli ), failFastCount, shutdown,
-                                          systemExitTimeout );
+                                          systemExitTimeout, outputWithoutRunning );
     }
 
     public StartupConfiguration getStartupConfiguration()

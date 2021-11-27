@@ -73,6 +73,8 @@ public class BaseProviderFactory
 
     private int skipAfterFailureCount;
 
+    private boolean outputWithoutRunning;
+
     private Integer systemExitTimeout;
 
     private CommandChainReader commandReader;
@@ -234,6 +236,12 @@ public class BaseProviderFactory
         return skipAfterFailureCount;
     }
 
+    @Override
+    public boolean isOutputWithoutRunning()
+    {
+        return outputWithoutRunning;
+    }
+
     /**
      * See the plugin configuration parameter "skipAfterFailureCount".
      *
@@ -264,5 +272,10 @@ public class BaseProviderFactory
     public void setForkedChannelEncoder( MasterProcessChannelEncoder masterProcessChannelEncoder )
     {
         this.masterProcessChannelEncoder = masterProcessChannelEncoder;
+    }
+
+    public void setOutputWithoutRunning( boolean outputWithoutRunning )
+    {
+        this.outputWithoutRunning = outputWithoutRunning;
     }
 }

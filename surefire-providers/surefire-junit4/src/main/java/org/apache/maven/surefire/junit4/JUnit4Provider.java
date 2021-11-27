@@ -96,6 +96,8 @@ public class JUnit4Provider
 
     private TestsToRun testsToRun;
 
+    private static boolean outputWithoutRunning = false;
+
     public JUnit4Provider( ProviderParameters bootParams )
     {
         // don't start a thread in CommandReader while we are in in-plugin process
@@ -109,6 +111,7 @@ public class JUnit4Provider
         TestRequest testRequest = bootParams.getTestRequest();
         testResolver = testRequest.getTestListResolver();
         rerunFailingTestsCount = testRequest.getRerunFailingTestsCount();
+        outputWithoutRunning = bootParams.isOutputWithoutRunning();
     }
 
     @Override
@@ -374,7 +377,7 @@ public class JUnit4Provider
                 request = request.filterWith( filter );
             }
             Runner runner = request.getRunner();
-            if ( countTestsInRunner( runner.getDescription() ) != 0 )
+            if ( countTestsInRunner( runner.getDescription() ) != 0 && !outputWithoutRunning )
             {
                 runner.run( notifier );
             }

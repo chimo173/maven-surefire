@@ -129,6 +129,8 @@ public interface SurefireExecutionParameters
 
     int getSkipAfterFailureCount();
 
+    boolean isOutputWithoutRunning();
+
     String getShutdown();
 
     String[] getIncludeJUnit5Engines();

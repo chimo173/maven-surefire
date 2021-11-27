@@ -722,6 +722,18 @@ public class MojoMocklessTest
         }
 
         @Override
+        public boolean isOutputWithoutRunning()
+        {
+            return false;
+        }
+
+        @Override
+        public void setOutputWithoutRunning( boolean outputWithoutRunning )
+        {
+
+        }
+
+        @Override
         public String[] getDependenciesToScan()
         {
             return dependenciesToScan;

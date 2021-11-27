@@ -867,6 +867,10 @@ public abstract class AbstractSurefireMojo
 
     public abstract void setRunOrder( String runOrder );
 
+    public abstract boolean isOutputWithoutRunning();
+
+    public abstract void setOutputWithoutRunning( boolean outputWithoutRunning );
+
     public abstract Long getRunOrderRandomSeed();
 
     public abstract void setRunOrderRandomSeed( Long runOrderRandomSeed );
@@ -1901,14 +1905,14 @@ public abstract class AbstractSurefireMojo
         }
 
         Map<String, String> providerProperties = toStringProperties( getProperties() );
-
+        boolean outputWithoutRunning = isOutputWithoutRunning();
         return new ProviderConfiguration( directoryScannerParameters, runOrderParameters, actualFailIfNoTests,
                                           reporterConfiguration,
                                           testNg, // Not really used in provider. Limited to de/serializer.
                                           testSuiteDefinition, providerProperties, null,
                                           false, cli, getSkipAfterFailureCount(),
                                           Shutdown.parameterOf( getShutdown() ),
-                                          getForkedProcessExitTimeoutInSeconds() );
+                                          getForkedProcessExitTimeoutInSeconds(), isOutputWithoutRunning() );
     }
 
     private static Map<String, String> toStringProperties( Properties properties )

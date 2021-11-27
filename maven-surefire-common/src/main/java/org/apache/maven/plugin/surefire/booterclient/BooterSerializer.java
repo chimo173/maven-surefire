@@ -58,6 +58,7 @@ import static org.apache.maven.surefire.booter.BooterConstants.PLUGIN_PID;
 import static org.apache.maven.surefire.booter.BooterConstants.PROCESS_CHECKER;
 import static org.apache.maven.surefire.booter.BooterConstants.PROVIDER_CONFIGURATION;
 import static org.apache.maven.surefire.booter.BooterConstants.RUN_ORDER_RANDOM_SEED;
+import static org.apache.maven.surefire.booter.BooterConstants.OUTPUT_WITHOUT_RUNNING;
 import static org.apache.maven.surefire.booter.BooterConstants.REPORTSDIRECTORY;
 import static org.apache.maven.surefire.booter.BooterConstants.REQUESTEDTEST;
 import static org.apache.maven.surefire.booter.BooterConstants.RERUN_FAILING_TESTS_COUNT;
@@ -179,6 +180,7 @@ class BooterSerializer
         properties.setProperty( PROVIDER_CONFIGURATION, startupConfiguration.getProviderClassName() );
         properties.setProperty( FAIL_FAST_COUNT, toString( providerConfiguration.getSkipAfterFailureCount() ) );
         properties.setProperty( SHUTDOWN, providerConfiguration.getShutdown().name() );
+        properties.setProperty( OUTPUT_WITHOUT_RUNNING, toString( providerConfiguration.isOutputWithoutRunning() ) );
         List<CommandLineOption> mainCliOptions = providerConfiguration.getMainCliOptions();
         if ( mainCliOptions != null )
         {
