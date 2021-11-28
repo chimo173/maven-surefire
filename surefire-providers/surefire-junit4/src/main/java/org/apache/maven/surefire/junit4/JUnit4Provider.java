@@ -307,7 +307,8 @@ public class JUnit4Provider
                 for ( int i = 0; i < rerunRegardlessCount ; i++ )
                 {
                     failureListener.reset();
-                    execute( clazz, rerunNotifier, null );
+                    execute( clazz, rerunNotifier,  hasMethodFilter ? createMethodFilter() : null,
+                        runOrderCalculator.comparatorForTestMethods() );
                 }
             }
         }
