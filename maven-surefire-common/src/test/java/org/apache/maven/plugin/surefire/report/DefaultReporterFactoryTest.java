@@ -84,7 +84,7 @@ public class DefaultReporterFactoryTest
                 new StartupReportConfiguration( true, true, "PLAIN", false, reportsDirectory, false, null,
                         new File( reportsDirectory, "TESTHASH" ), false, 1, null, null, false,
                         new SurefireStatelessReporter(), new SurefireConsoleOutputReporter(),
-                        new SurefireStatelessTestsetInfoReporter() );
+                        new SurefireStatelessTestsetInfoReporter(), 0 );
 
         DummyTestReporter reporter = new DummyTestReporter();
 
@@ -234,41 +234,41 @@ public class DefaultReporterFactoryTest
     public void testGetTestResultType()
     {
         List<ReportEntryType> emptyList = new ArrayList<>();
-        assertEquals( unknown, getTestResultType( emptyList, 1 ) );
+        assertEquals( unknown, getTestResultType( emptyList, 1, 0 ) );
 
         List<ReportEntryType> successList = new ArrayList<>();
         successList.add( ReportEntryType.SUCCESS );
         successList.add( ReportEntryType.SUCCESS );
-        assertEquals( success, getTestResultType( successList, 1 ) );
+        assertEquals( success, getTestResultType( successList, 1, 0 ) );
 
         List<ReportEntryType> failureErrorList = new ArrayList<>();
         failureErrorList.add( ReportEntryType.FAILURE );
         failureErrorList.add( ReportEntryType.ERROR );
-        assertEquals( error, getTestResultType( failureErrorList, 1 ) );
+        assertEquals( error, getTestResultType( failureErrorList, 1, 0 ) );
 
         List<ReportEntryType> errorFailureList = new ArrayList<>();
         errorFailureList.add( ReportEntryType.ERROR );
         errorFailureList.add( ReportEntryType.FAILURE );
-        assertEquals( error, getTestResultType( errorFailureList, 1 ) );
+        assertEquals( error, getTestResultType( errorFailureList, 1, 0 ) );
 
         List<ReportEntryType> flakeList = new ArrayList<>();
         flakeList.add( ReportEntryType.SUCCESS );
         flakeList.add( ReportEntryType.FAILURE );
-        assertEquals( flake, getTestResultType( flakeList, 1 ) );
+        assertEquals( flake, getTestResultType( flakeList, 1, 0 ) );
 
-        assertEquals( failure, getTestResultType( flakeList, 0 ) );
+        assertEquals( failure, getTestResultType( flakeList, 0, 0 ) );
 
         flakeList = new ArrayList<>();
         flakeList.add( ReportEntryType.ERROR );
         flakeList.add( ReportEntryType.SUCCESS );
         flakeList.add( ReportEntryType.FAILURE );
-        assertEquals( flake, getTestResultType( flakeList, 1 ) );
+        assertEquals( flake, getTestResultType( flakeList, 1, 0 ) );
 
-        assertEquals( error, getTestResultType( flakeList, 0 ) );
+        assertEquals( error, getTestResultType( flakeList, 0, 0 ) );
 
         List<ReportEntryType> skippedList = new ArrayList<>();
         skippedList.add( ReportEntryType.SKIPPED );
-        assertEquals( skipped, getTestResultType( skippedList, 1 ) );
+        assertEquals( skipped, getTestResultType( skippedList, 1, 0 ) );
     }
 
     public void testLogger()
@@ -280,7 +280,7 @@ public class DefaultReporterFactoryTest
                 new StartupReportConfiguration( true, true, "PLAIN", false, reportsDirectory, false, null,
                         new File( reportsDirectory, "TESTHASH" ), false, 1, null, null, false,
                         new SurefireStatelessReporter(), new SurefireConsoleOutputReporter(),
-                        new SurefireStatelessTestsetInfoReporter() );
+                        new SurefireStatelessTestsetInfoReporter(), 0 );
 
         DummyTestReporter reporter = new DummyTestReporter();
 
@@ -333,7 +333,7 @@ public class DefaultReporterFactoryTest
                 new StartupReportConfiguration( true, true, "PLAIN", false, reportsDirectory, false, null,
                         new File( reportsDirectory, "TESTHASH" ), false, 0, null, null, false,
                         new SurefireStatelessReporter(), new SurefireConsoleOutputReporter(),
-                        new SurefireStatelessTestsetInfoReporter() );
+                        new SurefireStatelessTestsetInfoReporter(), 0 );
 
         assertTrue( reportConfig.isUseFile() );
         assertTrue( reportConfig.isPrintSummary() );

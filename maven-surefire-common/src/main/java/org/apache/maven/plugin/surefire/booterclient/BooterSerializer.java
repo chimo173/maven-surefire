@@ -59,6 +59,7 @@ import static org.apache.maven.surefire.booter.BooterConstants.PROVIDER_CONFIGUR
 import static org.apache.maven.surefire.booter.BooterConstants.REPORTSDIRECTORY;
 import static org.apache.maven.surefire.booter.BooterConstants.REQUESTEDTEST;
 import static org.apache.maven.surefire.booter.BooterConstants.RERUN_FAILING_TESTS_COUNT;
+import static org.apache.maven.surefire.booter.BooterConstants.RERUN_REGARDLESS_COUNT;
 import static org.apache.maven.surefire.booter.BooterConstants.RUN_ORDER;
 import static org.apache.maven.surefire.booter.BooterConstants.RUN_STATISTICS_FILE;
 import static org.apache.maven.surefire.booter.BooterConstants.SHUTDOWN;
@@ -144,6 +145,8 @@ class BooterSerializer
             properties.setProperty( REQUESTEDTEST, testFilter == null ? "" : testFilter.getPluginParameterTest() );
             int rerunFailingTestsCount = testSuiteDefinition.getRerunFailingTestsCount();
             properties.setNullableProperty( RERUN_FAILING_TESTS_COUNT, toString( rerunFailingTestsCount ) );
+            int rerunRegardlessCount = testSuiteDefinition.getRerunRegardlessCount();
+            properties.setNullableProperty( RERUN_REGARDLESS_COUNT, toString( rerunRegardlessCount ) );
         }
 
         DirectoryScannerParameters directoryScannerParameters = providerConfiguration.getDirScannerParams();

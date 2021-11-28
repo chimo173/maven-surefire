@@ -29,7 +29,7 @@ public enum ReportEntryType
     ERROR( "error", "flakyError", "rerunError" ),
     FAILURE( "failure", "flakyFailure", "rerunFailure" ),
     SKIPPED( "skipped", "", "" ),
-    SUCCESS( "", "", "" );
+    SUCCESS( "success", "rerunSuccess", "rerunSuccess" );
 
     private final String xmlTag;
 

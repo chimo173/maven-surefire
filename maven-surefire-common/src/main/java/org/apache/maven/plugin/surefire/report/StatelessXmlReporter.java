@@ -94,6 +94,8 @@ public class StatelessXmlReporter
 
     private final int rerunFailingTestsCount;
 
+    private final int rerunRegardlessCount;
+
     private final String xsdSchemaLocation;
 
     private final String xsdVersion;
@@ -114,12 +116,14 @@ public class StatelessXmlReporter
                                  int rerunFailingTestsCount,
                                  Map<String, Deque<WrappedReportEntry>> testClassMethodRunHistoryMap,
                                  String xsdSchemaLocation, String xsdVersion, boolean phrasedFileName,
-                                 boolean phrasedSuiteName, boolean phrasedClassName, boolean phrasedMethodName )
+                                 boolean phrasedSuiteName, boolean phrasedClassName, boolean phrasedMethodName,
+                                 int rerunRegardlessCount )
     {
         this.reportsDirectory = reportsDirectory;
         this.reportNameSuffix = reportNameSuffix;
         this.trimStackTrace = trimStackTrace;
         this.rerunFailingTestsCount = rerunFailingTestsCount;
+        this.rerunRegardlessCount = rerunRegardlessCount;
         this.testClassMethodRunHistoryMap = testClassMethodRunHistoryMap;
         this.xsdSchemaLocation = xsdSchemaLocation;
         this.xsdVersion = xsdVersion;
@@ -202,7 +206,7 @@ public class StatelessXmlReporter
     private void serializeTestClass( OutputStream outputStream, OutputStreamWriter fw, XMLWriter ppw,
                                      List<WrappedReportEntry> methodEntries )
     {
-        if ( rerunFailingTestsCount > 0 )
+        if ( rerunFailingTestsCount > 0 || rerunRegardlessCount > 0 )
         {
             serializeTestClassWithRerun( outputStream, fw, ppw, methodEntries );
         }
@@ -234,71 +238,129 @@ public class StatelessXmlReporter
                                               List<WrappedReportEntry> methodEntries )
     {
         WrappedReportEntry firstMethodEntry = methodEntries.get( 0 );
-        switch ( getTestResultType( methodEntries ) )
+        if ( rerunRegardlessCount > 0 )
         {
-            case success:
-                for ( WrappedReportEntry methodEntry : methodEntries )
-                {
-                    if ( methodEntry.getReportEntryType() == SUCCESS )
+            boolean firstRun = true;
+            switch ( getTestResultType( methodEntries ) )
+            {
+                case success:
+                case failure:
+                case error:
+                    startTestElement( ppw, firstMethodEntry );
+                    for ( WrappedReportEntry singleRunEntry : methodEntries )
                     {
-                        startTestElement( ppw, methodEntry );
-                        ppw.endElement();
-                    }
-                }
-                break;
-            case error:
-            case failure:
-                // When rerunFailingTestsCount is set to larger than 0
-                startTestElement( ppw, firstMethodEntry );
-                boolean firstRun = true;
-                for ( WrappedReportEntry singleRunEntry : methodEntries )
-                {
-                    if ( firstRun )
-                    {
-                        firstRun = false;
-                        getTestProblems( fw, ppw, singleRunEntry, trimStackTrace, outputStream,
+                        if ( firstRun )
+                        {
+                            firstRun = false;
+                            getTestProblems( fw, ppw, singleRunEntry, trimStackTrace, outputStream,
                                 singleRunEntry.getReportEntryType().getXmlTag(), false );
-                        createOutErrElements( fw, ppw, singleRunEntry, outputStream );
-                    }
-                    else
-                    {
-                        getTestProblems( fw, ppw, singleRunEntry, trimStackTrace, outputStream,
+                            createOutErrElements( fw, ppw, singleRunEntry, outputStream );
+                        }
+                        else
+                        {
+                            getTestProblems( fw, ppw, singleRunEntry, trimStackTrace, outputStream,
                                 singleRunEntry.getReportEntryType().getRerunXmlTag(), true );
+                        }
                     }
-                }
-                ppw.endElement();
-                break;
-            case flake:
-                WrappedReportEntry successful = null;
-                // Get the run time of the first successful run
-                for ( WrappedReportEntry singleRunEntry : methodEntries )
-                {
-                    if ( singleRunEntry.getReportEntryType() == SUCCESS )
+                    ppw.endElement();
+                    break;
+                case flake:
+                    startTestElement( ppw, firstMethodEntry );
+                    for ( WrappedReportEntry singleRunEntry : methodEntries )
                     {
-                        successful = singleRunEntry;
-                        break;
-                    }
-                }
-                WrappedReportEntry firstOrSuccessful = successful == null ? methodEntries.get( 0 ) : successful;
-                startTestElement( ppw, firstOrSuccessful );
-                for ( WrappedReportEntry singleRunEntry : methodEntries )
-                {
-                    if ( singleRunEntry.getReportEntryType() != SUCCESS )
-                    {
-                        getTestProblems( fw, ppw, singleRunEntry, trimStackTrace, outputStream,
+                        if ( firstRun )
+                        {
+                            firstRun = false;
+                            getTestProblems( fw, ppw, singleRunEntry, trimStackTrace, outputStream,
+                                singleRunEntry.getReportEntryType().getXmlTag(), false );
+                            createOutErrElements( fw, ppw, singleRunEntry, outputStream );
+                        }
+                        else
+                        {
+                            getTestProblems( fw, ppw, singleRunEntry, trimStackTrace, outputStream,
                                 singleRunEntry.getReportEntryType().getFlakyXmlTag(), true );
+                        }
                     }
-                }
-                ppw.endElement();
-                break;
-            case skipped:
-                startTestElement( ppw, firstMethodEntry );
-                getTestProblems( fw, ppw, firstMethodEntry, trimStackTrace, outputStream,
+                    ppw.endElement();
+                    break;
+                case skipped:
+                    startTestElement( ppw, firstMethodEntry );
+                    getTestProblems( fw, ppw, firstMethodEntry, trimStackTrace, outputStream,
                         firstMethodEntry.getReportEntryType().getXmlTag(), false );
-                ppw.endElement();
-                break;
-            default:
-                throw new IllegalStateException( "Get unknown test result type" );
+                    ppw.endElement();
+                    break;
+                default:
+                    throw new IllegalStateException( "Get unknown test result type" );
+            }
+        }
+        else
+        {
+            switch ( getTestResultType( methodEntries ) )
+            {
+                case success:
+                    for ( WrappedReportEntry methodEntry : methodEntries )
+                    {
+                        if ( methodEntry.getReportEntryType() == SUCCESS )
+                        {
+                            startTestElement( ppw, methodEntry );
+                            ppw.endElement();
+                        }
+                    }
+                    break;
+                case error:
+                case failure:
+                    // When rerunFailingTestsCount is set to larger than 0
+                    startTestElement( ppw, firstMethodEntry );
+                    boolean firstRun = true;
+                    for ( WrappedReportEntry singleRunEntry : methodEntries )
+                    {
+                        if ( firstRun )
+                        {
+                            firstRun = false;
+                            getTestProblems( fw, ppw, singleRunEntry, trimStackTrace, outputStream,
+                                singleRunEntry.getReportEntryType().getXmlTag(), false );
+                            createOutErrElements( fw, ppw, singleRunEntry, outputStream );
+                        }
+                        else
+                        {
+                            getTestProblems( fw, ppw, singleRunEntry, trimStackTrace, outputStream,
+                                singleRunEntry.getReportEntryType().getRerunXmlTag(), true );
+                        }
+                    }
+                    ppw.endElement();
+                    break;
+                case flake:
+                    WrappedReportEntry successful = null;
+                    // Get the run time of the first successful run
+                    for ( WrappedReportEntry singleRunEntry : methodEntries )
+                    {
+                        if ( singleRunEntry.getReportEntryType() == SUCCESS )
+                        {
+                            successful = singleRunEntry;
+                            break;
+                        }
+                    }
+                    WrappedReportEntry firstOrSuccessful = successful == null ? methodEntries.get( 0 ) : successful;
+                    startTestElement( ppw, firstOrSuccessful );
+                    for ( WrappedReportEntry singleRunEntry : methodEntries )
+                    {
+                        if ( singleRunEntry.getReportEntryType() != SUCCESS )
+                        {
+                            getTestProblems( fw, ppw, singleRunEntry, trimStackTrace, outputStream,
+                                singleRunEntry.getReportEntryType().getFlakyXmlTag(), true );
+                        }
+                    }
+                    ppw.endElement();
+                    break;
+                case skipped:
+                    startTestElement( ppw, firstMethodEntry );
+                    getTestProblems( fw, ppw, firstMethodEntry, trimStackTrace, outputStream,
+                        firstMethodEntry.getReportEntryType().getXmlTag(), false );
+                    ppw.endElement();
+                    break;
+                default:
+                    throw new IllegalStateException( "Get unknown test result type" );
+            }
         }
     }
 
@@ -324,7 +386,8 @@ public class StatelessXmlReporter
             testResultTypeList.add( singleRunEntry.getReportEntryType() );
         }
 
-        return DefaultReporterFactory.getTestResultType( testResultTypeList, rerunFailingTestsCount );
+        return DefaultReporterFactory.getTestResultType( testResultTypeList, rerunFailingTestsCount,
+            rerunRegardlessCount );
     }
 
     private Deque<WrappedReportEntry> getAddMethodRunHistoryMap( String testClassName )

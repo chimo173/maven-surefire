@@ -88,7 +88,8 @@ public class StatelessXmlReporterTest
         StatelessXmlReporter reporter =
                 new StatelessXmlReporter( reportDir, null, false, 0,
                         new ConcurrentHashMap<String, Deque<WrappedReportEntry>>(), XSD, "3.0",
-                        false, false, false, false );
+                        false, false, false, false,
+                        0 );
         reporter.cleanTestHistoryMap();
 
         ReportEntry reportEntry = new SimpleReportEntry( getClass().getName(), null, getClass().getName(), null, 12 );
@@ -138,7 +139,7 @@ public class StatelessXmlReporterTest
 
         stats.testSucceeded( t2 );
         StatelessXmlReporter reporter = new StatelessXmlReporter( reportDir, null, false, 0,
-                new ConcurrentHashMap<String, Deque<WrappedReportEntry>>(), XSD, "3.0", false, false, false, false );
+                new ConcurrentHashMap<String, Deque<WrappedReportEntry>>(), XSD, "3.0", false, false, false, false, 0 );
         reporter.testSetCompleted( testSetReportEntry, stats );
 
         FileInputStream fileInputStream = new FileInputStream( expectedReportFile );
@@ -217,7 +218,7 @@ public class StatelessXmlReporterTest
 
         StatelessXmlReporter reporter =
                 new StatelessXmlReporter( reportDir, null, false, 1,
-                        new HashMap<String, Deque<WrappedReportEntry>>(), XSD, "3.0", false, false, false, false );
+                        new HashMap<String, Deque<WrappedReportEntry>>(), XSD, "3.0", false, false, false, false, 0 );
 
         reporter.testSetCompleted( testSetReportEntry, stats );
         reporter.testSetCompleted( testSetReportEntry, rerunStats );
