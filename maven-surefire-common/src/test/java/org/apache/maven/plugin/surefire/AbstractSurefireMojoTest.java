@@ -2081,6 +2081,12 @@ public class AbstractSurefireMojoTest
         }
 
         @Override
+        protected int getRerunRegardlessCount()
+        {
+            return 0;
+        }
+
+        @Override
         public boolean isSkipTests()
         {
             return false;

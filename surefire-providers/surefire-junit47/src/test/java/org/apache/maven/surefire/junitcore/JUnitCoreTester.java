@@ -109,6 +109,6 @@ public class JUnitCoreTester
         File statisticsFile = new File( target, "TESTHASHxXML" );
         return new StartupReportConfiguration( true, true, "PLAIN", false, target, false, null, statisticsFile,
                 false, 0, null, null, false, new SurefireStatelessReporter(), new SurefireConsoleOutputReporter(),
-                new SurefireStatelessTestsetInfoReporter() );
+                new SurefireStatelessTestsetInfoReporter(), 0 );
     }
 }

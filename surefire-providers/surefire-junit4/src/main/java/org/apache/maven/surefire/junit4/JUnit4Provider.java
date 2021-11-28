@@ -92,6 +92,8 @@ public class JUnit4Provider
 
     private final int rerunFailingTestsCount;
 
+    private final int rerunRegardlessCount;
+
     private final CommandChainReader commandsReader;
 
     private TestsToRun testsToRun;
@@ -109,6 +111,7 @@ public class JUnit4Provider
         TestRequest testRequest = bootParams.getTestRequest();
         testResolver = testRequest.getTestListResolver();
         rerunFailingTestsCount = testRequest.getRerunFailingTestsCount();
+        rerunRegardlessCount = testRequest.getRerunRegardlessCount();
     }
 
     @Override
@@ -193,6 +196,11 @@ public class JUnit4Provider
     private boolean isRerunFailingTests()
     {
         return rerunFailingTestsCount > 0;
+    }
+
+    private boolean isRerunRegardless()
+    {
+        return rerunRegardlessCount > 0;
     }
 
     private boolean isFailFast()
@@ -290,6 +298,16 @@ public class JUnit4Provider
                     Filter failureDescriptionFilter = createMatchAnyDescriptionFilter( failures );
                     execute( clazz, rerunNotifier, failureDescriptionFilter,
                         runOrderCalculator.comparatorForTestMethods() );
+                }
+            }
+            else if ( isRerunRegardless() )
+            {
+                Notifier rerunNotifier = pureNotifier();
+                notifier.copyListenersTo( rerunNotifier );
+                for ( int i = 0; i < rerunRegardlessCount ; i++ )
+                {
+                    failureListener.reset();
+                    execute( clazz, rerunNotifier, null );
                 }
             }
         }

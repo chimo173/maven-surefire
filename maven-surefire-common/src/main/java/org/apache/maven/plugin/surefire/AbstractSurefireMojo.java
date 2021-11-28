@@ -834,6 +834,9 @@ public abstract class AbstractSurefireMojo
 
     protected abstract int getRerunFailingTestsCount();
 
+    protected abstract int getRerunRegardlessCount();
+
+
     @Override
     public abstract List<String> getIncludes();
 
@@ -1862,7 +1865,8 @@ public abstract class AbstractSurefireMojo
         final TestRequest testSuiteDefinition = new TestRequest( suiteXmlFiles(),
                                                                  getTestSourceDirectory(),
                                                                  getSpecificTests(),
-                                                                 getRerunFailingTestsCount() );
+                                                                 getRerunFailingTestsCount(),
+                                                                 getRerunRegardlessCount() );
 
         final boolean actualFailIfNoTests;
         DirectoryScannerParameters directoryScannerParameters = null;
@@ -2179,7 +2183,8 @@ public abstract class AbstractSurefireMojo
                                                getReportsDirectory(), isTrimStackTrace(), getReportNameSuffix(),
                                                getStatisticsFile( configChecksum ), requiresRunHistory(),
                                                getRerunFailingTestsCount(), getReportSchemaLocation(), getEncoding(),
-                                               isForkMode, xmlReporter, outReporter, testsetReporter );
+                                               isForkMode, xmlReporter, outReporter, testsetReporter,
+                                               getRerunRegardlessCount() );
     }
 
     private boolean isSpecificTestSpecified()
