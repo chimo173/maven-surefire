@@ -716,6 +716,18 @@ public class MojoMocklessTest
         }
 
         @Override
+        public Long getRunOrderRandomSeed()
+        {
+            return null;
+        }
+
+        @Override
+        public void setRunOrderRandomSeed( Long runOrderRandomSeed )
+        {
+
+        }
+
+        @Override
         public String[] getDependenciesToScan()
         {
             return dependenciesToScan;
@@ -789,6 +801,30 @@ public class MojoMocklessTest
 
         @Override
         public void setSystemPropertiesFile( File systemPropertiesFile )
+        {
+
+        }
+
+        @Override
+        public String[] getIncludeJUnit5Engines()
+        {
+            return null;
+        }
+
+        @Override
+        public void setIncludeJUnit5Engines( String[] includeJUnit5Engines )
+        {
+
+        }
+
+        @Override
+        public String[] getExcludeJUnit5Engines()
+        {
+            return null;
+        }
+
+        @Override
+        public void setExcludeJUnit5Engines( String[] excludeJUnit5Engines )
         {
 
         }

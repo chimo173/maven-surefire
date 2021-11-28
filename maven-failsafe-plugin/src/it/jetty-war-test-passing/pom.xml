@@ -22,7 +22,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>localhost</groupId>
-  <artifactId>jetty-war-test</artifactId>
+  <artifactId>jetty-war-test-passing</artifactId>
   <version>1.0</version>
   <packaging>war</packaging>
   <name>run passing tests in jetty container</name>
@@ -64,6 +64,10 @@
       </testResource>
     </testResources>
     <plugins>
+      <plugin>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>3.3.1</version>
+      </plugin>
       <plugin>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-maven-plugin</artifactId>

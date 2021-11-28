@@ -1,4 +1,4 @@
-package org.apache.maven.surefire.extensions;
+package org.apache.maven.surefire.report;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -19,36 +19,42 @@ package org.apache.maven.surefire.extensions;
  * under the License.
  */
 
-import org.apache.maven.plugin.surefire.log.api.ConsoleLogger;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import java.io.File;
-
 /**
- * The properties related to the current JVM.
- *
- * @author <a href="mailto:tibordigana@apache.org">Tibor Digana (tibor17)</a>
- * @since 3.0.0-M5
+ * @author Adam Jones
  */
-public interface ForkNodeArguments
+public class SomeMockedException extends RuntimeException
 {
-    @Nonnull
-    String getSessionId();
+    public SomeMockedException()
+    {
+    }
 
-    /**
-     * The index of the forked JVM, from 1 to N.
-     *
-     * @return index of the forked JVM
-     */
-    @Nonnegative
-    int getForkChannelId();
+    @Override
+    public String getMessage()
+    {
+        return null;
+    }
 
-    @Nonnull
-    File dumpStreamText( @Nonnull String text );
+    @Override
+    public String getLocalizedMessage()
+    {
+        return null;
+    }
 
-    void logWarningAtEnd( @Nonnull String text );
+    @Override
+    public Throwable getCause()
+    {
+        return null;
+    }
 
-    @Nonnull
-    ConsoleLogger getConsoleLogger();
+    @Override
+    public String toString()
+    {
+        return null;
+    }
+
+    @Override
+    public StackTraceElement[] getStackTrace()
+    {
+        return null;
+    }
 }

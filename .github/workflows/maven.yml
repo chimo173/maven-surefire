@@ -31,21 +31,23 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macOS-latest]
+        java: [8, 11, 15]
       fail-fast: false
 
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 120
 
     steps:
       - name: Checkout
         uses: actions/checkout@v1
 
-      - name: Set up JDK 14
+      - name: Set up JDK ${{ matrix.java }}
         uses: actions/setup-java@v1
         with:
-          java-version: 14
+          java-version: ${{ matrix.java }}
 
       - name: Build with Maven
-        run: mvn install -e -B -V -nsu --no-transfer-progress -P run-its
+        run: mvn clean install -e -B -V -nsu --no-transfer-progress -P run-its -Dfailsafe-integration-test-port=8083
 
       - name: Upload artifact surefire-its
         uses: actions/upload-artifact@v2-preview

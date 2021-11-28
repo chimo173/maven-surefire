@@ -56,7 +56,7 @@ public class TestSurefire3
 
     public void testU0000()
     {
-        fail( "\u0000" );
+        fail( "Hi \u0000 there!" );
     }
 
 }

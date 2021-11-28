@@ -33,6 +33,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousByteChannel;
 import java.nio.channels.ClosedChannelException;
@@ -95,10 +96,10 @@ public class ChannelsWriterTest
             .hasSize( 1 )
             .containsOnly( true );
 
-        assertThat( bb.position() )
+        assertThat( ( (Buffer) bb ).position() )
             .isEqualTo( 3 );
 
-        assertThat( bb.limit() )
+        assertThat( ( (Buffer) bb ).limit() )
             .isEqualTo( 3 );
 
         assertThat( bb.capacity() )
@@ -123,10 +124,10 @@ public class ChannelsWriterTest
             .hasSize( 3 )
             .isEqualTo( new byte[] {1, 2, 3} );
 
-        assertThat( bb.position() )
+        assertThat( ( (Buffer) bb ).position() )
             .isEqualTo( 3 );
 
-        assertThat( bb.limit() )
+        assertThat( ( (Buffer) bb ).limit() )
             .isEqualTo( 3 );
 
         assertThat( bb.capacity() )
@@ -134,6 +135,48 @@ public class ChannelsWriterTest
 
         assertThat( channel.isOpen() )
             .isTrue();
+    }
+
+    @Test
+    public void shouldFlushWhenEmptyBuffer() throws Exception
+    {
+        final boolean[] flushed = {false};
+        ByteArrayOutputStream out = new ByteArrayOutputStream()
+        {
+            @Override
+            public void flush() throws IOException
+            {
+                flushed[0] = true;
+                super.flush();
+            }
+        };
+        WritableByteChannel channel = Channels.newChannel( out );
+        ByteBuffer bb = ByteBuffer.allocate( 0 );
+        int countWritten = channel.write( bb );
+        assertThat( countWritten )
+            .isEqualTo( 0 );
+        assertThat( flushed[0] )
+            .isTrue();
+    }
+
+    @Test
+    public void shouldFlushWhenEmptyBufferOnBufferedWrites() throws Exception
+    {
+        final boolean[] flushed = {false};
+        ByteArrayOutputStream out = new ByteArrayOutputStream()
+        {
+            @Override
+            public void flush() throws IOException
+            {
+                flushed[0] = true;
+                super.flush();
+            }
+        };
+        WritableBufferedByteChannel channel = Channels.newBufferedChannel( out );
+        ByteBuffer bb = ByteBuffer.allocate( 0 );
+        channel.writeBuffered( bb );
+        assertThat( flushed[0] )
+            .isFalse();
     }
 
     @Test
@@ -151,21 +194,16 @@ public class ChannelsWriterTest
         assertThat( out.toByteArray() )
             .isEmpty();
 
-        channel.write( ByteBuffer.allocate( 0 ) );
-
-        assertThat( out.toByteArray() )
-            .isEmpty();
-
         channel.write( ByteBuffer.wrap( new byte[] {4} ) );
 
         assertThat( out.toByteArray() )
             .hasSize( 4 )
             .isEqualTo( new byte[] {1, 2, 3, 4} );
 
-        assertThat( bb.position() )
+        assertThat( ( (Buffer) bb ).position() )
             .isEqualTo( 3 );
 
-        assertThat( bb.limit() )
+        assertThat( ( (Buffer) bb ).limit() )
             .isEqualTo( 3 );
 
         assertThat( bb.capacity() )

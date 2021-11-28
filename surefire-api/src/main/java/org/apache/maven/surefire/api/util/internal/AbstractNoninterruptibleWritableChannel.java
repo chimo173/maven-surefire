@@ -20,6 +20,7 @@ package org.apache.maven.surefire.api.util.internal;
  */
 
 import java.io.IOException;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.NonWritableChannelException;
@@ -64,20 +65,15 @@ abstract class AbstractNoninterruptibleWritableChannel implements WritableBuffer
 
         if ( src.remaining() != src.capacity() )
         {
-            src.flip();
+            ( (Buffer) src ).flip();
         }
 
-        int countWrittenBytes = 0;
-
-        if ( src.hasRemaining() )
+        int countWrittenBytes = src.remaining();
+        writeImpl( src );
+        ( (Buffer) src ).position( ( (Buffer) src ).limit() );
+        if ( flush )
         {
-            countWrittenBytes = src.remaining();
-            writeImpl( src );
-            src.position( src.limit() );
-            if ( flush )
-            {
-                flushImpl();
-            }
+            flushImpl();
         }
         return countWrittenBytes;
     }

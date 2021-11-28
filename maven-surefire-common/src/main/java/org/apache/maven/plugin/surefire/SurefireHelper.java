@@ -64,6 +64,8 @@ public final class SurefireHelper
 
     public static final String DUMP_FILENAME = DUMP_FILE_DATE + DUMP_FILE_EXT;
 
+    public static final String EVENTS_BINARY_DUMP_FILENAME_FORMATTER = DUMP_FILE_DATE + "-jvmRun%d-events.bin";
+
     /**
      * The maximum path that does not require long path prefix on Windows.<br>
      * See {@code sun/nio/fs/WindowsPath} in
@@ -140,7 +142,9 @@ public final class SurefireHelper
                                         PluginConsoleLogger log, Exception firstForkException )
         throws MojoFailureException, MojoExecutionException
     {
-        if ( firstForkException == null && !result.isTimeout() && result.isErrorFree() )
+        boolean isError = firstForkException != null || result.isTimeout() || !result.isErrorFree();
+        boolean isTooFlaky = isTooFlaky( result, reportParameters );
+        if ( !isError && !isTooFlaky )
         {
             if ( result.getCompletedCount() == 0 && failIfNoTests( reportParameters ) )
             {
@@ -284,7 +288,25 @@ public final class SurefireHelper
         }
         else
         {
-            msg.append( "There are test failures.\n\nPlease refer to " )
+            if ( result.getFailures() > 0 )
+            {
+                msg.append( "There are test failures." );
+            }
+            if ( isTooFlaky( result, reportParameters ) )
+            {
+                if ( result.getFailures() > 0 )
+                {
+                    msg.append( "\n" );
+                }
+                msg.append( "There" )
+                    .append( result.getFlakes() == 1 ? " is " : " are " )
+                    .append( result.getFlakes() )
+                    .append( result.getFlakes() == 1 ? " flake " : " flakes " )
+                    .append( "and failOnFlakeCount is set to " )
+                    .append( reportParameters.getFailOnFlakeCount() )
+                    .append( "." );
+            }
+            msg.append( "\n\nPlease refer to " )
                     .append( reportParameters.getReportsDirectory() )
                     .append( " for the individual test results." )
                     .append( '\n' )
@@ -310,6 +332,12 @@ public final class SurefireHelper
         }
 
         return msg.toString();
+    }
+
+    private static boolean isTooFlaky( RunResult result, SurefireReportParameters reportParameters )
+    {
+        int failOnFlakeCount = reportParameters.getFailOnFlakeCount();
+        return failOnFlakeCount > 0 && result.getFlakes() >= failOnFlakeCount;
     }
 
 }

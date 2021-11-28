@@ -26,13 +26,16 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousByteChannel;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicLong;
 
+import static java.lang.Math.max;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -211,10 +214,10 @@ public final class Channels
             @Override
             protected int readImpl( ByteBuffer src ) throws IOException
             {
-                int count = bis.read( src.array(), src.arrayOffset() + src.position(), src.remaining() );
+                int count = bis.read( src.array(), src.arrayOffset() + ( (Buffer) src ).position(), src.remaining() );
                 if ( count > 0 )
                 {
-                    src.position( count + src.position() );
+                    ( (Buffer) src ).position( count + ( (Buffer) src ).position() );
                 }
                 return count;
             }
@@ -227,17 +230,28 @@ public final class Channels
         };
     }
 
-    private static WritableBufferedByteChannel newChannel( @Nonnull OutputStream out, @Nonnegative int bufferSize )
+    private static WritableBufferedByteChannel newChannel( @Nonnull OutputStream out,
+                                                           @Nonnegative final int bufferSize )
     {
         requireNonNull( out, "the stream should not be null" );
         final OutputStream bos = bufferSize == 0 ? out : new BufferedOutputStream( out, bufferSize );
 
         return new AbstractNoninterruptibleWritableChannel()
         {
+            private final AtomicLong bytesCounter = new AtomicLong();
+
+            @Override
+            public long countBufferOverflows()
+            {
+                return bufferSize == 0 ? 0 : max( bytesCounter.get() - 1, 0 ) / bufferSize;
+            }
+
             @Override
             protected void writeImpl( ByteBuffer src ) throws IOException
             {
-                bos.write( src.array(), src.arrayOffset() + src.position(), src.remaining() );
+                int count = src.remaining();
+                bos.write( src.array(), src.arrayOffset() + ( (Buffer) src ).position(), count );
+                bytesCounter.getAndAdd( count );
             }
 
             @Override

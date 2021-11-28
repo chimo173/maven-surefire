@@ -22,6 +22,8 @@ package org.apache.maven.plugin.surefire;
 import junit.framework.TestCase;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.surefire.api.suite.RunResult;
+import org.junit.Rule;
+import org.junit.rules.ExpectedException;
 
 import java.io.File;
 
@@ -32,6 +34,9 @@ import static org.fest.assertions.Assertions.assertThat;
  */
 public class SurefirePluginTest extends TestCase
 {
+    @Rule
+    public final ExpectedException e = ExpectedException.none();
+
     public void testDefaultIncludes()
     {
         assertThat( new SurefirePlugin().getDefaultIncludes() )
@@ -113,5 +118,32 @@ public class SurefirePluginTest extends TestCase
         plugin.setSystemPropertiesFile( new File( "testShouldGetPropertyFile" ) );
         assertThat( plugin.getSystemPropertiesFile() )
                 .isEqualTo( new File( "testShouldGetPropertyFile" ) );
+    }
+
+    public void testNegativeFailOnFlakeCount()
+    {
+        SurefirePlugin plugin = new SurefirePlugin();
+        plugin.setFailOnFlakeCount( -1 );
+        e.expect( MojoFailureException.class );
+        e.expectMessage( "Parameter \"failOnFlakeCount\" should not be negative." );
+    }
+
+    public void testFailOnFlakeCountWithoutRerun()
+    {
+        SurefirePlugin plugin = new SurefirePlugin();
+        plugin.setFailOnFlakeCount( 1 );
+        e.expect( MojoFailureException.class );
+        e.expectMessage( "\"failOnFlakeCount\" requires rerunFailingTestsCount to be at least 1." );
+    }
+
+    public void testShouldHaveJUnit5EnginesFilter()
+    {
+        SurefirePlugin plugin = new SurefirePlugin();
+
+        plugin.setIncludeJUnit5Engines( new String[] { "e1", "e2" } );
+        assertThat( plugin.getIncludeJUnit5Engines() ).isEqualTo( new String[] { "e1", "e2" } );
+
+        plugin.setExcludeJUnit5Engines( new String[] { "e1", "e2" } );
+        assertThat( plugin.getExcludeJUnit5Engines() ).isEqualTo( new String[] { "e1", "e2" } );
     }
 }

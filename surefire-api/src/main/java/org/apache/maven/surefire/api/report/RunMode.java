@@ -19,10 +19,12 @@ package org.apache.maven.surefire.api.report;
  * under the License.
  */
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import org.apache.maven.surefire.api.stream.AbstractStreamDecoder.Segment;
 
-import static java.util.Collections.unmodifiableMap;
+import java.util.HashMap;
+import java.util.Map;
+
+import static java.nio.charset.StandardCharsets.US_ASCII;
 
 /**
  * Determines the purpose the provider started the tests. It can be either normal run or a kind of re-run type.
@@ -38,27 +40,36 @@ public enum RunMode
     RERUN_TEST_AFTER_FAILURE( "rerun-test-after-failure" );
     //todo add here RERUN_TESTSET, see https://github.com/apache/maven-surefire/pull/221
 
-    public static final Map<String, RunMode> MODES = modes();
+    // due to have fast and thread-safe Map
+    public static final Map<Segment, RunMode> RUN_MODES = segmentsToRunModes();
 
-    private static Map<String, RunMode> modes()
+    private final String runmode;
+    private final byte[] runmodeBinary;
+
+    RunMode( String runmode )
     {
-        Map<String, RunMode> modes = new ConcurrentHashMap<>();
-        for ( RunMode mode : values() )
+        this.runmode = runmode;
+        runmodeBinary = runmode.getBytes( US_ASCII );
+    }
+
+    public String geRunmode()
+    {
+        return runmode;
+    }
+
+    public byte[] getRunmodeBinary()
+    {
+        return runmodeBinary;
+    }
+
+    private static Map<Segment, RunMode> segmentsToRunModes()
+    {
+        Map<Segment, RunMode> runModes = new HashMap<>();
+        for ( RunMode runMode : RunMode.values() )
         {
-            modes.put( mode.geRunName(), mode );
+            byte[] array = runMode.getRunmodeBinary();
+            runModes.put( new Segment( array, 0, array.length ), runMode );
         }
-        return unmodifiableMap( modes );
-    }
-
-    private final String runName;
-
-    RunMode( String runName )
-    {
-        this.runName = runName;
-    }
-
-    public String geRunName()
-    {
-        return runName;
+        return runModes;
     }
 }

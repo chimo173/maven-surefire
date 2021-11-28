@@ -150,6 +150,8 @@ import static org.apache.maven.surefire.api.suite.RunResult.failure;
 import static org.apache.maven.surefire.api.suite.RunResult.noTestsRun;
 import static org.apache.maven.surefire.api.util.ReflectionUtils.invokeMethodWithArray;
 import static org.apache.maven.surefire.api.util.ReflectionUtils.tryGetMethod;
+import static org.apache.maven.surefire.api.booter.ProviderParameterNames.INCLUDE_JUNIT5_ENGINES_PROP;
+import static org.apache.maven.surefire.api.booter.ProviderParameterNames.EXCLUDE_JUNIT5_ENGINES_PROP;
 
 /**
  * Abstract base class for running tests using Surefire.
@@ -576,7 +578,7 @@ public abstract class AbstractSurefireMojo
     /**
      * (TestNG provider) When you use the parameter {@code parallel}, TestNG will try to run all your test methods
      * in separate threads, except for methods that depend on each other, which will be run in the same thread in order
-     * to respect their order of execution.
+     * to respect their order of execution.  Supports two values: {@code classes} or {@code methods}.
      * <br>
      * (JUnit 4.7 provider) Supports values {@code classes}, {@code methods}, {@code both} to run
      * in separate threads been controlled by {@code threadCount}.
@@ -868,6 +870,10 @@ public abstract class AbstractSurefireMojo
 
     public abstract void setRunOrder( String runOrder );
 
+    public abstract Long getRunOrderRandomSeed();
+
+    public abstract void setRunOrderRandomSeed( Long runOrderRandomSeed );
+
     protected abstract void handleSummary( RunResult summary, Exception firstForkException )
         throws MojoExecutionException, MojoFailureException;
 
@@ -969,7 +975,7 @@ public abstract class AbstractSurefireMojo
         if ( getToolchainsMethod != null )
         {
             //noinspection unchecked
-            List<Toolchain> tcs = (List<Toolchain>) invokeMethodWithArray( toolchainManager,
+            List<Toolchain> tcs = invokeMethodWithArray( toolchainManager,
                 getToolchainsMethod, session, "jdk", toolchainArgs );
             if ( tcs.isEmpty() )
             {
@@ -1132,6 +1138,8 @@ public abstract class AbstractSurefireMojo
             warnIfNotApplicableSkipAfterFailureCount();
             warnIfIllegalTempDir();
             warnIfForkCountIsZero();
+            warnIfIllegalFailOnFlakeCount();
+            printDefaultSeedIfNecessary();
         }
         return true;
     }
@@ -1140,8 +1148,8 @@ public abstract class AbstractSurefireMojo
     {
         if ( "0".equals( getForkCount() ) )
         {
-            getConsoleLogger().warning( "The parameter forkCount should likely not be 0, not forking a JVM for tests "
-                + "reduce test accuracy, ensure to have a <forkCount> >= 1." );
+            getConsoleLogger().warning( "The parameter forkCount should likely not be 0. Forking a JVM for tests "
+                + "improves test accuracy. Ensure to have a <forkCount> >= 1." );
         }
     }
 
@@ -1288,7 +1296,7 @@ public abstract class AbstractSurefireMojo
         ClassLoaderConfiguration classLoaderConfiguration = getClassLoaderConfiguration();
         provider.addProviderProperties();
         RunOrderParameters runOrderParameters =
-            new RunOrderParameters( getRunOrder(), getStatisticsFile( getConfigChecksum() ) );
+            new RunOrderParameters( getRunOrder(), getStatisticsFile( getConfigChecksum() ), getRunOrderRandomSeed() );
 
         if ( isNotForking() )
         {
@@ -1525,10 +1533,15 @@ public abstract class AbstractSurefireMojo
                 }
                 return "org.apache.maven.surefire.testng.conf.TestNG5143Configurator";
             }
-            range = VersionRange.createFromVersionSpec( "[6.0,)" );
+            range = VersionRange.createFromVersionSpec( "[6.0,7.4.0)" );
             if ( range.containsVersion( version ) )
             {
                 return "org.apache.maven.surefire.testng.conf.TestNG60Configurator";
+            }
+            range = VersionRange.createFromVersionSpec( "[7.4.0,)" );
+            if ( range.containsVersion( version ) )
+            {
+                return "org.apache.maven.surefire.testng.conf.TestNG740Configurator";
             }
 
             throw new MojoExecutionException( "Unknown TestNG version " + version );
@@ -1550,6 +1563,35 @@ public abstract class AbstractSurefireMojo
         {
             getProperties().setProperty( ProviderParameterNames.TESTNG_GROUPS_PROP, this.getGroups() );
         }
+    }
+
+    private void convertJunitEngineParameters()
+    {
+        if ( getIncludeJUnit5Engines() != null && getIncludeJUnit5Engines().length != 0 )
+        {
+            getProperties()
+                .setProperty( INCLUDE_JUNIT5_ENGINES_PROP, join( getIncludeJUnit5Engines() ) );
+        }
+
+        if ( getExcludeJUnit5Engines() != null && getExcludeJUnit5Engines().length != 0 )
+        {
+            getProperties()
+                .setProperty( EXCLUDE_JUNIT5_ENGINES_PROP, join( getExcludeJUnit5Engines() ) );
+        }
+    }
+
+    private static String join( String[] array )
+    {
+        StringBuilder stringBuilder = new StringBuilder();
+        for ( int i = 0, length = array.length; i < length; i++ )
+        {
+            stringBuilder.append( array[i] );
+            if ( i < length - 1 )
+            {
+                stringBuilder.append( ',' );
+            }
+        }
+        return stringBuilder.toString();
     }
 
     protected boolean isAnyConcurrencySelected()
@@ -2570,8 +2612,7 @@ public abstract class AbstractSurefireMojo
         String debugForkedProcess = getDebugForkedProcess();
         if ( "true".equals( debugForkedProcess ) )
         {
-            return "-Xdebug -Xnoagent -Djava.compiler=NONE"
-                + " -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005";
+            return "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=localhost:5005";
         }
         return debugForkedProcess;
     }
@@ -2727,6 +2768,8 @@ public abstract class AbstractSurefireMojo
         checksum.add( isChildDelegation() );
         checksum.add( getGroups() );
         checksum.add( getExcludedGroups() );
+        checksum.add( getIncludeJUnit5Engines() );
+        checksum.add( getExcludeJUnit5Engines() );
         checksum.add( getSuiteXmlFiles() );
         checksum.add( getJunitArtifact() );
         checksum.add( getTestNGArtifactName() );
@@ -3056,6 +3099,22 @@ public abstract class AbstractSurefireMojo
         }
     }
 
+    protected void warnIfIllegalFailOnFlakeCount() throws MojoFailureException
+    {
+
+    }
+
+    private void printDefaultSeedIfNecessary()
+    {
+        if ( getRunOrderRandomSeed() == null && getRunOrder().equals( RunOrder.RANDOM.name() ) )
+        {
+            setRunOrderRandomSeed( System.nanoTime() );
+            getConsoleLogger().info(
+                "Tests will run in random order. To reproduce ordering use flag -D"
+                    + getPluginName() + ".runOrder.random.seed=" + getRunOrderRandomSeed() );
+        }
+    }
+
     final class TestNgProviderInfo
         implements ProviderInfo
     {
@@ -3217,6 +3276,7 @@ public abstract class AbstractSurefireMojo
         public void addProviderProperties()
         {
             convertGroupParameters();
+            convertJunitEngineParameters();
         }
 
         @Nonnull
@@ -3395,6 +3455,7 @@ public abstract class AbstractSurefireMojo
         {
             convertJunitCoreParameters();
             convertGroupParameters();
+            convertJunitEngineParameters();
         }
 
         @Nonnull

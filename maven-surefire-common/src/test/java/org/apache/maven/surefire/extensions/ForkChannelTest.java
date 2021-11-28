@@ -26,6 +26,7 @@ import org.apache.maven.plugin.surefire.extensions.SurefireForkNodeFactory;
 import org.apache.maven.plugin.surefire.log.api.ConsoleLogger;
 import org.apache.maven.surefire.api.event.ControlByeEvent;
 import org.apache.maven.surefire.api.event.Event;
+import org.apache.maven.surefire.api.fork.ForkNodeArguments;
 import org.apache.maven.surefire.extensions.util.CountdownCloseable;
 import org.junit.Test;
 
@@ -63,9 +64,22 @@ public class ForkChannelTest
     @Test( timeout = TESTCASE_TIMEOUT )
     public void shouldRequestReplyMessagesViaTCP() throws Exception
     {
+        final MockReporter reporter = new MockReporter();
         final String sessionId = UUID.randomUUID().toString();
         ForkNodeArguments forkNodeArguments = new ForkNodeArguments()
         {
+            @Override
+            public File getEventStreamBinaryFile()
+            {
+                return null;
+            }
+
+            @Override
+            public File getCommandStreamBinaryFile()
+            {
+                return null;
+            }
+
             @Nonnull
             @Override
             public String getSessionId()
@@ -86,6 +100,13 @@ public class ForkChannelTest
                 return new File( "" );
             }
 
+            @Nonnull
+            @Override
+            public File dumpStreamException( @Nonnull Throwable t )
+            {
+                return new File( "" );
+            }
+
             @Override
             public void logWarningAtEnd( @Nonnull String text )
             {
@@ -95,7 +116,7 @@ public class ForkChannelTest
             @Nonnull
             public ConsoleLogger getConsoleLogger()
             {
-                return new MockReporter();
+                return reporter;
             }
         };
 
@@ -133,7 +154,7 @@ public class ForkChannelTest
             CountdownCloseable cc = new CountdownCloseable( closeable, 2 );
             Consumer consumer = new Consumer();
 
-            Client client = new Client( uri.getPort(), sessionId.toString() );
+            Client client = new Client( uri.getPort(), sessionId );
             client.start();
 
             channel.connectToClient();
@@ -151,6 +172,10 @@ public class ForkChannelTest
 
             assertThat( isCloseableCalled.await( TESTCASE_TIMEOUT, MILLISECONDS ) )
                 .isTrue();
+
+            assertThat( reporter.getEvents() )
+                .describedAs( "The decoder captured the list of stream errors: " + reporter.getData().toString() )
+                .isEmpty();
 
             assertThat( consumer.lines )
                 .hasSize( 1 );
@@ -191,8 +216,8 @@ public class ForkChannelTest
                 byte[] data = new byte[128];
                 int readLength = socket.getInputStream().read( data );
                 String token = new String( data, 0, readLength, US_ASCII );
-                assertThat( token ).isEqualTo( ":maven-surefire-command:noop:" );
-                socket.getOutputStream().write( ":maven-surefire-event:bye:".getBytes( US_ASCII ) );
+                assertThat( token ).isEqualTo( ":maven-surefire-command:\u0004:noop:" );
+                socket.getOutputStream().write( ":maven-surefire-event:\u0003:bye:".getBytes( US_ASCII ) );
             }
             catch ( IOException e )
             {

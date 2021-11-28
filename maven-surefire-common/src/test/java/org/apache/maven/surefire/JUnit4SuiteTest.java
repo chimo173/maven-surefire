@@ -32,6 +32,7 @@ import org.apache.maven.plugin.surefire.SurefireHelperTest;
 import org.apache.maven.plugin.surefire.SurefirePropertiesTest;
 import org.apache.maven.plugin.surefire.booterclient.BooterDeserializerProviderConfigurationTest;
 import org.apache.maven.plugin.surefire.booterclient.BooterDeserializerStartupConfigurationTest;
+import org.apache.maven.plugin.surefire.booterclient.ChecksumCalculatorTest;
 import org.apache.maven.plugin.surefire.booterclient.DefaultForkConfigurationTest;
 import org.apache.maven.plugin.surefire.booterclient.ForkConfigurationTest;
 import org.apache.maven.plugin.surefire.booterclient.ForkStarterTest;
@@ -44,6 +45,7 @@ import org.apache.maven.plugin.surefire.booterclient.output.ForkClientTest;
 import org.apache.maven.plugin.surefire.booterclient.output.ThreadedStreamConsumerTest;
 import org.apache.maven.plugin.surefire.extensions.ConsoleOutputReporterTest;
 import org.apache.maven.plugin.surefire.extensions.E2ETest;
+import org.apache.maven.plugin.surefire.extensions.EventConsumerThreadTest;
 import org.apache.maven.plugin.surefire.extensions.ForkedProcessEventNotifierTest;
 import org.apache.maven.plugin.surefire.extensions.StatelessReporterTest;
 import org.apache.maven.plugin.surefire.extensions.StreamFeederTest;
@@ -61,6 +63,7 @@ import org.apache.maven.surefire.extensions.StatelessTestsetInfoReporterTest;
 import org.apache.maven.surefire.report.FileReporterTest;
 import org.apache.maven.surefire.report.RunStatisticsTest;
 import org.apache.maven.surefire.spi.SPITest;
+import org.apache.maven.surefire.stream.EventDecoderTest;
 import org.apache.maven.surefire.util.RelocatorTest;
 
 /**
@@ -114,6 +117,9 @@ public class JUnit4SuiteTest extends TestCase
         suite.addTest( new JUnit4TestAdapter( StreamFeederTest.class ) );
         suite.addTest( new JUnit4TestAdapter( E2ETest.class ) );
         suite.addTest( new JUnit4TestAdapter( ThreadedStreamConsumerTest.class ) );
+        suite.addTest( new JUnit4TestAdapter( EventDecoderTest.class ) );
+        suite.addTest( new JUnit4TestAdapter( EventConsumerThreadTest.class ) );
+        suite.addTest( new JUnit4TestAdapter( ChecksumCalculatorTest.class ) );
         return suite;
     }
 }

@@ -320,6 +320,22 @@ public class IntegrationTestMojo
     private String runOrder;
 
     /**
+     * Sets the random seed that will be used to order the tests if {@code failsafe.runOrder} is set to {@code random}.
+     * <br>
+     * <br>
+     * If no seeds are set and {@code failsafe.runOrder} is set to {@code random}, then the seed used will be
+     * outputted (search for "To reproduce ordering use flag -Dfailsafe.runOrder.random.seed").
+     * <br>
+     * <br>
+     * To deterministically reproduce any random test order that was run before, simply set the seed to
+     * be the same value.
+     *
+     * @since 3.0.0-M6
+     */
+    @Parameter( property = "failsafe.runOrder.random.seed" )
+    private Long runOrderRandomSeed;
+
+    /**
      * A file containing include patterns, each in a next line. Blank lines, or lines starting with # are ignored.
      * If {@code includes} are also specified, these patterns are appended. Example with path, simple and regex
      * includes:
@@ -384,10 +400,10 @@ public class IntegrationTestMojo
     private String shutdown;
 
     /**
-     * Disables modular path (aka Jigsaw project since of Java 9) even if <i>module-info.java</i> is used in project.
+     * When {@code true}, uses the modulepath when executing with JDK 9+ and <i>module-info.java</i> is
+     * present. When {@code false}, always uses the classpath.
      * <br>
-     * Enabled by default.
-     * If enabled, <i>module-info.java</i> exists and executes with JDK 9+, modular path is used.
+     * Defaults to {@code true}.
      *
      * @since 3.0.0-M2
      */
@@ -468,6 +484,22 @@ public class IntegrationTestMojo
 
     @Parameter( property = "failsafe.systemPropertiesFile" )
     private File systemPropertiesFile;
+
+    /**
+     * Provide the ID/s of an JUnit engine to be included in the test run.
+     *
+     * @since 3.0.0-M6
+     */
+    @Parameter( property = "includeJUnit5Engines" )
+    private String[] includeJUnit5Engines;
+
+    /**
+     * Provide the ID/s of an JUnit engine to be excluded in the test run.
+     *
+     * @since 3.0.0-M6
+     */
+    @Parameter( property = "excludeJUnit5Engines" )
+    private String[] excludeJUnit5Engines;
 
     @Override
     protected int getRerunFailingTestsCount()
@@ -907,6 +939,18 @@ public class IntegrationTestMojo
     }
 
     @Override
+    public Long getRunOrderRandomSeed()
+    {
+        return runOrderRandomSeed;
+    }
+
+    @Override
+    public void setRunOrderRandomSeed( Long runOrderRandomSeed )
+    {
+        this.runOrderRandomSeed = runOrderRandomSeed;
+    }
+
+    @Override
     public File getIncludesFile()
     {
         return includesFile;
@@ -963,5 +1007,27 @@ public class IntegrationTestMojo
     protected final String getEnableProcessChecker()
     {
         return enableProcessChecker;
+    }
+
+    public String[] getIncludeJUnit5Engines()
+    {
+        return includeJUnit5Engines;
+    }
+
+    @SuppressWarnings( "UnusedDeclaration" )
+    public void setIncludeJUnit5Engines( String[] includeJUnit5Engines )
+    {
+        this.includeJUnit5Engines = includeJUnit5Engines;
+    }
+
+    public String[] getExcludeJUnit5Engines()
+    {
+        return excludeJUnit5Engines;
+    }
+
+    @SuppressWarnings( "UnusedDeclaration" )
+    public void setExcludeJUnit5Engines( String[] excludeJUnit5Engines )
+    {
+        this.excludeJUnit5Engines = excludeJUnit5Engines;
     }
 }

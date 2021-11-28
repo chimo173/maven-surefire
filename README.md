@@ -1,76 +1,86 @@
-<!---
- Licensed to the Apache Software Foundation (ASF) under one or more
- contributor license agreements.  See the NOTICE file distributed with
- this work for additional information regarding copyright ownership.
- The ASF licenses this file to You under the Apache License, Version 2.0
- (the "License"); you may not use this file except in compliance with
- the License.  You may obtain a copy of the License at
+# Usage
 
-      http://www.apache.org/licenses/LICENSE-2.0
+This repository is a fork of Maven Surefire that contains two main modifications.
 
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
--->
+1. A Maven extension to ensure that any Maven project one runs ```mvn test``` on will use this custom version of Surefire instead, and
+2. the ability to control the ordering of tests run directly with Maven Surefire.
 
-<img src="https://maven.apache.org/images/maven-logo-black-on-white.png" width="100%" height="30%" alt="Maven"/>
+## Setup
 
-Contributing to [Apache Maven Surefire](https://maven.apache.org/surefire/)
-======================
+To use the plugin, please perform the following steps.
 
-[![ASF Jira](https://img.shields.io/endpoint?url=https%3A%2F%2Fmaven.apache.org%2Fbadges%2Fasf_jira-SUREFIRE.json&style=for-the-badge)][jira]
-[![Maven Central](https://img.shields.io/maven-central/v/org.apache.maven.surefire/surefire.svg?label=Maven%20Central&style=for-the-badge)](https://search.maven.org/artifact/org.apache.maven.plugins/maven-surefire-plugin)
-[![Apache License, Version 2.0, January 2004](https://img.shields.io/github/license/apache/maven.svg?label=License&style=for-the-badge)][license]
+1. Run ```mvn install -DskipTests -Drat.skip``` in this directory
+2. Copy ```surefire-changing-maven-extension/target/surefire-changing-maven-extension-1.0-SNAPSHOT.jar``` into your Maven installation's ```lib/ext``` directory. This [StackOverflow post](https://stackoverflow.com/a/39479104) may help indicate where your Maven installation is located
 
-[![CI](https://img.shields.io/badge/CI-Jenkins-blue.svg?style=for-the-badge)](https://jenkins-ci.org/)
-[![Jenkins Status](https://img.shields.io/jenkins/s/https/builds.apache.org/job/maven-box/job/maven-surefire/job/master.svg?style=for-the-badge)][build]
-[![Jenkins tests](https://img.shields.io/jenkins/t/https/builds.apache.org/job/maven-box/job/maven-surefire/job/master.svg?style=for-the-badge)][test-results]
-[![Jenkins JaCoCo](https://img.shields.io/jenkins/coverage/jacoco/https/builds.apache.org/job/maven-box/job/maven-surefire/job/master.svg?style=for-the-badge&color=green)](https://builds.apache.org/job/maven-box/job/maven-surefire/job/master/lastBuild/jacoco/)
+The copying of the extension helps ensure that any project you run ```mvn test``` on will now use this custom version of Surefire and change certain settings (e.g., reuseForks to false) to prevent issues with fixing the ordering of tests. More information on how to use Maven extensions can be found [here](https://maven.apache.org/examples/maven-3-lifecycle-extensions.html#use-your-extension-in-your-build-s). Note that if you already have ```surefire-changing-maven-extension-1.0-SNAPSHOT.jar``` in your Maven installation's ```lib/ext``` you must first remove the jar before installing again.
 
-[![Actions Status](https://github.com/apache/maven-surefire/workflows/GitHub%20CI/badge.svg?branch=master)](https://github.com/apache/maven-surefire/actions)
+## Example
 
-# The Maven Community
+```
+mvn test -Dsurefire.runOrder=testorder \
+-Dtest=org.apache.dubbo.rpc.protocol.dubbo.DubboLazyConnectTest#testSticky1,\
+org.apache.dubbo.rpc.protocol.dubbo.DubboProtocolTest#testDubboProtocol,\
+org.apache.dubbo.rpc.protocol.dubbo.DubboProtocolTest#testDubboProtocolWithMina \
+-pl dubbo-rpc/dubbo-rpc-dubbo
+```
 
-[![slack](https://img.shields.io/badge/slack-18/1138-pink.svg?style=for-the-badge)](https://the-asf.slack.com)
-[![forks](https://img.shields.io/github/forks/apache/maven-surefire.svg?style=for-the-badge&label=Fork)](https://github.com/apache/maven-surefire/)
+By specifying ```-Dsurefire.runOrder=testorder``` Maven test will run the specifed tests in the order that they appear in ```-Dtest```.
+Specifically, running the command above will result in the tests running in the following order:
 
+1. org.apache.dubbo.rpc.protocol.dubbo.DubboLazyConnectTest.testSticky1
+2. org.apache.dubbo.rpc.protocol.dubbo.DubboProtocolTest.testDubboProtocol
+3. org.apache.dubbo.rpc.protocol.dubbo.DubboProtocolTest.testDubboProtocolWithMina
 
-# Project Documentation
+## Example with file
 
-[![Maven 3.0 Plugin API](https://img.shields.io/badge/maven%20site-documentation-blue.svg?style=for-the-badge)](https://maven.apache.org/surefire/)
+```
+mvn test -Dtest=path_to_file -Dsurefire.runOrder=testorder -pl dubbo-rpc/dubbo-rpc-dubbo
+```
 
-Usage of [maven-surefire-plugin], [maven-failsafe-plugin], [maven-surefire-report-plugin]
+By specifying ```-Dsurefire.runOrder=testorder``` Maven test will run the specifed tests in the order that they appear in the file ```path_to_file```. Note that the ```path_to_file``` should be an **absolute** path (e.g., ```/home/user/project/test-list```).
 
+Assume the content of ```path_to_file``` are the following:
 
-# Development Information
+```
+org.apache.dubbo.rpc.protocol.dubbo.DubboLazyConnectTest#testSticky1
+org.apache.dubbo.rpc.protocol.dubbo.DubboProtocolTest#testDubboProtocol
+org.apache.dubbo.rpc.protocol.dubbo.DubboProtocolTest#testDubboProtocolWithMina
+```
 
-Build the Surefire project using **Maven 3.1.0+** and **JDK 1.8+**.  
+Then running the Maven command above will result in the tests running in the following order:
 
-* In order to run tests for a release check during the Vote, the following memory requirements are needed:   
-  **(on Linux/Unix)** *export MAVEN_OPTS="-server -Xmx512m -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=384m -XX:+UseG1GC -XX:+UseStringDeduplication -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:SoftRefLRUPolicyMSPerMB=50 -Djava.awt.headless=true -Dhttps.protocols=TLSv1"*  
-  **(on Windows)** *set MAVEN_OPTS="-server -Xmx256m -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=384m -XX:+UseG1GC -XX:+UseStringDeduplication -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:SoftRefLRUPolicyMSPerMB=50 -Djava.awt.headless=true -Dhttps.protocols=TLSv1"*    
-* In order to run the tests with **JDK 1.7** (on Linux/Unix modify the system property **jdk.home**):  
-  *mvn install site site:stage -P reporting,run-its "-Djdk.home=e:\Program Files\Java\jdk1.7.0_80\"*
-* In order to run the build and the tests with **JDK 1.8+**, e.g. JDK 11:    
-  *mvn install site site:stage -P reporting,run-its "-Djdk.home=e:\Program Files\Java\jdk11\"*
-  
-
-### Deploying web site
-
-See http://maven.apache.org/developers/website/deploy-component-reference-documentation.html
-
-[![Built with Maven](http://maven.apache.org/images/logos/maven-feather.png)](https://maven.apache.org/surefire/)
+1. org.apache.dubbo.rpc.protocol.dubbo.DubboLazyConnectTest.testSticky1
+2. org.apache.dubbo.rpc.protocol.dubbo.DubboProtocolTest.testDubboProtocol
+3. org.apache.dubbo.rpc.protocol.dubbo.DubboProtocolTest.testDubboProtocolWithMina
 
 
-[jira]: https://issues.apache.org/jira/browse/SUREFIRE/
-[license]: https://www.apache.org/licenses/LICENSE-2.0
-[build]: https://builds.apache.org/job/maven-box/job/maven-surefire/job/master/
-[test-results]: https://builds.apache.org/job/maven-box/job/maven-surefire/job/master/lastCompletedBuild/testReport/
-[Join us @ irc://freenode/maven]: https://www.irccloud.com/invite?channel=maven&amp;hostname=irc.freenode.net&amp;port=6697&amp;ssl=1
-[Webchat with us @channel maven]: http://webchat.freenode.net/?channels=%23maven
-[JIRA Change Log]: https://issues.apache.org/jira/browse/SUREFIRE/?selectedTab=com.atlassian.jira.jira-projects-plugin:changelog-panel
-[maven-surefire-plugin]: https://maven.apache.org/surefire/maven-surefire-plugin/usage.html
-[maven-failsafe-plugin]: https://maven.apache.org/surefire/maven-failsafe-plugin/usage.html
-[maven-surefire-report-plugin]: https://maven.apache.org/surefire/maven-surefire-report-plugin/usage.html
+## Random with seed
+
+This specific feature has been merged to [apache/maven-surefire](https://github.com/apache/maven-surefire/pull/309). The other features in this repository will be submitted to Surefire soon.
+
+Specifically, Surefire will:
+
+1. Output of the random seed used to generate a particular random test order when `-Dsurefire.runOrder.random.seed` and `-Dfailsafe.runOrder.random.seed` are not set. To get the seed, look for the following in the output:
+```
+Tests will run in random order. To reproduce ordering use flag -Dsurefire.runOrder.random.seed=28421961536740501
+```
+2. Replay a previously observed random test order by setting `-Dsurefire.runOrder.random.seed` and `-Dfailsafe.runOrder.random.seed` to the seed that observed the random test order
+
+Note that the seed will control the random of both test classes and test methods if both are set to random. E.g., ```-Dsurefire.runOrder=random -Dsurefire.runOrder.random.seed=28421961536740501``` will randomize both test classes and test methods with ```28421961536740501``` as the seed. It is currently not possible to set the seed of the test class and test method to be different.
+
+Some tests were added to Surefire for this feature. These tests ensure that the setting of the same random seeds do create the same test orders and different random seeds do create different test orders. Note that the inherent randomness of the orders does mean that the tests can be flaky (nondeterministically pass or fail without changes to the code). The current tests have a rate of 0.4% (1/3)^5 of failing. Increasing the number of tests (3) or the number of times to loop (5) would decrease the odds of the tests failing.
+
+## Caveats
+
+1. **Test methods from different test classes cannot interleave.**  When test methods from various test classes interleave, all test methods from the first time the test class runs will run then as well. E.g., If tests ClassA.testA, ClassB.testA, ClassA.testB are provided, then the run order will be ClassA.testA, ClassA.testB, ClassB.testA.
+
+2. **FixMethodOrder annotations are ignored.** JUnit 4.11+ provides the annotation [FixMethodOrder](https://junit.org/junit4/javadoc/4.12/org/junit/FixMethodOrder.html) to control the ordering in which tests are run. Such annotations are ignored when this plugin is used. E.g., If tests ClassA.testB, ClassA.testA are provided and FixMethodOrder is set to NAME_ASCENDING, then the run order will still be ClassA.testB, ClassA.testA.
+
+## TODOs
+
+The following are features that we would like to have but are yet to be supported.
+
+1. Have surefire reports save the order in which the test classes are run
+2. Allow one to get just the test order list without running tests
+3. Reverse mode
+4. Have Surefire fix order-dependent tests observed in last run

@@ -119,6 +119,20 @@ public class SurefireReflectorTest
         assertTrue( isCalled( foo ) );
     }
 
+    public void testRunOrderParametersWithRunOrderRandomSeed()
+    {
+        SurefireReflector surefireReflector = getReflector();
+        Object foo = getFoo();
+
+        // Arbitrary random seed that should be ignored because RunOrder is not RANDOM
+        Long runOrderRandomSeed = 5L;
+
+        RunOrderParameters runOrderParameters = new RunOrderParameters( RunOrder.DEFAULT, new File( "." ),
+                                                                        runOrderRandomSeed );
+        surefireReflector.setRunOrderParameters( foo, runOrderParameters );
+        assertTrue( isCalled( foo ) );
+    }
+
     public void testNullRunOrderParameters()
     {
         SurefireReflector surefireReflector = getReflector();
@@ -126,7 +140,15 @@ public class SurefireReflectorTest
 
         surefireReflector.setRunOrderParameters( foo, null );
         assertTrue( isCalled( foo ) );
-        assertNull( ( (Foo) foo ).getRunOrderCalculator() );
+        try
+        {
+            ( (Foo) foo ).getRunOrderCalculator();
+        }
+        catch ( NullPointerException e )
+        {
+            return;
+        }
+        fail();
     }
 
     public void testTestSuiteDefinition()
