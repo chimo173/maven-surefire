@@ -34,18 +34,22 @@ public class StatelessReportMojoConfiguration
 
     private final boolean trimStackTrace;
 
+    private final boolean reportAllClass;
+
     private final int rerunFailingTestsCount;
 
     private final String xsdSchemaLocation;
 
     public StatelessReportMojoConfiguration( File reportsDirectory, String reportNameSuffix, boolean trimStackTrace,
-                                             int rerunFailingTestsCount, String xsdSchemaLocation )
+                                             int rerunFailingTestsCount, String xsdSchemaLocation,
+                                             boolean reportAllClass )
     {
         this.reportsDirectory = reportsDirectory;
         this.reportNameSuffix = reportNameSuffix;
         this.trimStackTrace = trimStackTrace;
         this.rerunFailingTestsCount = rerunFailingTestsCount;
         this.xsdSchemaLocation = xsdSchemaLocation;
+        this.reportAllClass = reportAllClass;
     }
 
     public File getReportsDirectory()
@@ -66,6 +70,11 @@ public class StatelessReportMojoConfiguration
     public int getRerunFailingTestsCount()
     {
         return rerunFailingTestsCount;
+    }
+
+    public boolean isReportAllClass ()
+    {
+        return reportAllClass;
     }
 
     public String getXsdSchemaLocation()

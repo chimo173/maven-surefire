@@ -156,7 +156,8 @@ public class ForkStarterTest
             .thenReturn( cli );
 
         StartupReportConfiguration startupReportConfiguration = new StartupReportConfiguration( true, true, null,
-            false, tmp, true, "", null, false, 0, null, null, true, null, null, null );
+            false, tmp, true, "", null, false, 0, null,
+            null, true, null, null, null, false );
 
         ConsoleLogger logger = mock( ConsoleLogger.class );
 
@@ -215,7 +216,9 @@ public class ForkStarterTest
             .thenReturn( cli );
 
         StartupReportConfiguration startupReportConfiguration = new StartupReportConfiguration( true, true, null,
-            false, tmp, true, "", null, false, 0, null, null, true, null, null, null );
+            false, tmp, true, "", null, false,
+            0, null, null, true, null,
+            null, null, false );
 
         ConsoleLogger logger = mock( ConsoleLogger.class );
 

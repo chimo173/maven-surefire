@@ -272,6 +272,13 @@ public class IntegrationTestMojo
     private int rerunFailingTestsCount;
 
     /**
+     * Set this to true to get all XML report printed into TEST-ALLCLASS.xml which consists the order of all test
+     * classes. The property is ommited for concision.
+     */
+    @Parameter( property = "failsafe.reportAllClass", defaultValue = "false" )
+    private boolean reportAllClass;
+
+    /**
      * (TestNG) List of &lt;suiteXmlFile&gt; elements specifying TestNG suite xml file locations. Note that
      * {@code suiteXmlFiles} is incompatible with several other parameters of this plugin, like
      * {@code includes} and {@code excludes}.<br>
@@ -496,6 +503,12 @@ public class IntegrationTestMojo
     protected int getRerunFailingTestsCount()
     {
         return rerunFailingTestsCount;
+    }
+
+    @Override
+    protected boolean isReportAllClass()
+    {
+        return reportAllClass;
     }
 
     @Override

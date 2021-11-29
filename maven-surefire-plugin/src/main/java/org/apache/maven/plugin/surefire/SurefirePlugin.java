@@ -255,6 +255,13 @@ public class SurefirePlugin
     private int rerunFailingTestsCount;
 
     /**
+     * Set this to true to get all XML report printed into TEST-ALLCLASS.xml which consists the order of all test
+     * classes. The property is ommited for concision.
+     */
+    @Parameter( property = "surefire.reportAllClass", defaultValue = "false" )
+    private boolean reportAllClass;
+
+    /**
      * Set this to a value greater than 0 to fail the whole test set if the cumulative number of flakes reaches
      * this threshold. Set to 0 to allow an unlimited number of flakes.
      *
@@ -486,6 +493,12 @@ public class SurefirePlugin
     protected int getRerunFailingTestsCount()
     {
         return rerunFailingTestsCount;
+    }
+
+    @Override
+    protected boolean isReportAllClass()
+    {
+        return reportAllClass;
     }
 
     @Override

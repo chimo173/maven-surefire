@@ -118,7 +118,8 @@ public class JUnit5Xml30StatelessReporter
                 getUsePhrasedFileName(),
                 getUsePhrasedTestSuiteClassName(),
                 getUsePhrasedTestCaseClassName(),
-                getUsePhrasedTestCaseMethodName() );
+                getUsePhrasedTestCaseMethodName(),
+                false );
     }
 
     @Override

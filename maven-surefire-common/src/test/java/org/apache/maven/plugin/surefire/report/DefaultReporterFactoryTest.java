@@ -84,7 +84,7 @@ public class DefaultReporterFactoryTest
                 new StartupReportConfiguration( true, true, "PLAIN", false, reportsDirectory, false, null,
                         new File( reportsDirectory, "TESTHASH" ), false, 1, null, null, false,
                         new SurefireStatelessReporter(), new SurefireConsoleOutputReporter(),
-                        new SurefireStatelessTestsetInfoReporter() );
+                        new SurefireStatelessTestsetInfoReporter(), false );
 
         DummyTestReporter reporter = new DummyTestReporter();
 
@@ -280,7 +280,7 @@ public class DefaultReporterFactoryTest
                 new StartupReportConfiguration( true, true, "PLAIN", false, reportsDirectory, false, null,
                         new File( reportsDirectory, "TESTHASH" ), false, 1, null, null, false,
                         new SurefireStatelessReporter(), new SurefireConsoleOutputReporter(),
-                        new SurefireStatelessTestsetInfoReporter() );
+                        new SurefireStatelessTestsetInfoReporter() , false );
 
         DummyTestReporter reporter = new DummyTestReporter();
 
@@ -333,7 +333,7 @@ public class DefaultReporterFactoryTest
                 new StartupReportConfiguration( true, true, "PLAIN", false, reportsDirectory, false, null,
                         new File( reportsDirectory, "TESTHASH" ), false, 0, null, null, false,
                         new SurefireStatelessReporter(), new SurefireConsoleOutputReporter(),
-                        new SurefireStatelessTestsetInfoReporter() );
+                        new SurefireStatelessTestsetInfoReporter(), false );
 
         assertTrue( reportConfig.isUseFile() );
         assertTrue( reportConfig.isPrintSummary() );
