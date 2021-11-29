@@ -2081,6 +2081,12 @@ public class AbstractSurefireMojoTest
         }
 
         @Override
+        protected boolean isReportAllClass()
+        {
+            return false;
+        }
+
+        @Override
         public boolean isSkipTests()
         {
             return false;

@@ -543,6 +543,12 @@ public class AbstractSurefireMojoJava7PlusTest
         }
 
         @Override
+        protected boolean isReportAllClass()
+        {
+            return false;
+        }
+
+        @Override
         public boolean isSkipTests()
         {
             return false;

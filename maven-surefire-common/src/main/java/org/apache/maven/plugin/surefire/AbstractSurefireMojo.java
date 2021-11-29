@@ -834,6 +834,8 @@ public abstract class AbstractSurefireMojo
 
     protected abstract int getRerunFailingTestsCount();
 
+    protected abstract boolean isReportAllClass();
+
     @Override
     public abstract List<String> getIncludes();
 
@@ -2173,13 +2175,13 @@ public abstract class AbstractSurefireMojo
         SurefireStatelessTestsetInfoReporter testsetReporter =
                 statelessTestsetInfoReporter == null
                         ? new SurefireStatelessTestsetInfoReporter() : statelessTestsetInfoReporter;
-
         return new StartupReportConfiguration( isUseFile(), isPrintSummary(), getReportFormat(),
                                                isRedirectTestOutputToFile(),
                                                getReportsDirectory(), isTrimStackTrace(), getReportNameSuffix(),
                                                getStatisticsFile( configChecksum ), requiresRunHistory(),
                                                getRerunFailingTestsCount(), getReportSchemaLocation(), getEncoding(),
-                                               isForkMode, xmlReporter, outReporter, testsetReporter );
+                                               isForkMode, xmlReporter, outReporter, testsetReporter,
+                                               isReportAllClass() );
     }
 
     private boolean isSpecificTestSpecified()

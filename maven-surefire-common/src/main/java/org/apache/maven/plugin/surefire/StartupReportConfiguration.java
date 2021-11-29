@@ -76,6 +76,8 @@ public final class StartupReportConfiguration
 
     private final boolean trimStackTrace;
 
+    private final boolean reportAllClass;
+
     private final int rerunFailingTestsCount;
 
     private final String xsdSchemaLocation;
@@ -101,7 +103,7 @@ public final class StartupReportConfiguration
                File statisticsFile, boolean requiresRunHistory, int rerunFailingTestsCount,
                String xsdSchemaLocation, String encoding, boolean isForkMode,
                SurefireStatelessReporter xmlReporter, SurefireConsoleOutputReporter consoleOutputReporter,
-               SurefireStatelessTestsetInfoReporter testsetReporter )
+               SurefireStatelessTestsetInfoReporter testsetReporter, boolean reportAllClass )
     {
         this.useFile = useFile;
         this.printSummary = printSummary;
@@ -122,6 +124,7 @@ public final class StartupReportConfiguration
         this.xmlReporter = xmlReporter;
         this.consoleOutputReporter = consoleOutputReporter;
         this.testsetReporter = testsetReporter;
+        this.reportAllClass = reportAllClass;
     }
 
     public boolean isUseFile()
@@ -175,7 +178,8 @@ public final class StartupReportConfiguration
 
         DefaultStatelessReportMojoConfiguration xmlReporterConfig =
                 new DefaultStatelessReportMojoConfiguration( resolveReportsDirectory( forkNumber ), reportNameSuffix,
-                        trimStackTrace, rerunFailingTestsCount, xsdSchemaLocation, testClassMethodRunHistory );
+                        trimStackTrace, rerunFailingTestsCount, xsdSchemaLocation, testClassMethodRunHistory,
+                    reportAllClass );
 
         return xmlReporter.isDisable() ? null : xmlReporter.createListener( xmlReporterConfig );
     }

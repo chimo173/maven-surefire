@@ -110,11 +110,20 @@ public class StatelessXmlReporter
 
     private final boolean phrasedMethodName;
 
+    private static OutputStream allClassOutStream = null;
+
+    private static OutputStreamWriter allClassFw = null;
+
+    private static XMLWriter allClassPpw = null;
+
+    private final boolean reportAllClass;
+
     public StatelessXmlReporter( File reportsDirectory, String reportNameSuffix, boolean trimStackTrace,
                                  int rerunFailingTestsCount,
                                  Map<String, Deque<WrappedReportEntry>> testClassMethodRunHistoryMap,
                                  String xsdSchemaLocation, String xsdVersion, boolean phrasedFileName,
-                                 boolean phrasedSuiteName, boolean phrasedClassName, boolean phrasedMethodName )
+                                 boolean phrasedSuiteName, boolean phrasedClassName, boolean phrasedMethodName,
+                                 boolean reportAllClass )
     {
         this.reportsDirectory = reportsDirectory;
         this.reportNameSuffix = reportNameSuffix;
@@ -127,6 +136,7 @@ public class StatelessXmlReporter
         this.phrasedSuiteName = phrasedSuiteName;
         this.phrasedClassName = phrasedClassName;
         this.phrasedMethodName = phrasedMethodName;
+        this.reportAllClass = reportAllClass;
     }
 
     @Override
@@ -162,6 +172,42 @@ public class StatelessXmlReporter
             // The control flow must not be broken in TestSetRunListener#testSetCompleted.
             InPluginProcessDumpSingleton.getSingleton()
                     .dumpException( e, e.getLocalizedMessage(), reportsDirectory );
+        }
+
+        if ( reportAllClass )
+        {
+            if ( allClassOutStream == null )
+            {
+                allClassOutStream = getAllClassOutputStream();
+                allClassFw = getWriter( allClassOutStream );
+                allClassPpw = new PrettyPrintXMLWriter( allClassFw );
+                allClassPpw.setEncoding( UTF_8.name() );
+            }
+            try
+            {
+                createTestSuiteElement( allClassPpw, testSetReportEntry, testSetStats ); // TestSuite
+
+                //showProperties( allClassPpw, testSetReportEntry.getSystemProperties() );
+
+                for ( Entry<String, Map<String, List<WrappedReportEntry>>> statistics : classMethodStatistics.entrySet() )
+                {
+                    for ( Entry<String, List<WrappedReportEntry>> thisMethodRuns : statistics.getValue().entrySet() )
+                    {
+                        serializeTestClass( allClassOutStream, allClassFw, allClassPpw, thisMethodRuns.getValue() );
+                    }
+                }
+                allClassPpw.endElement(); // TestSuite
+                allClassFw.flush();
+                allClassOutStream.flush();
+            }
+            catch ( Exception e )
+            {
+                // It's not a test error.
+                // This method must be sail-safe and errors are in a dump log.
+                // The control flow must not be broken in TestSetRunListener#testSetCompleted.
+                InPluginProcessDumpSingleton.getSingleton()
+                    .dumpException( e, e.getLocalizedMessage(), reportsDirectory );
+            }
         }
     }
 
@@ -357,6 +403,24 @@ public class StatelessXmlReporter
         }
     }
 
+    private OutputStream getAllClassOutputStream()
+    {
+        File reportFile = getAllClassReportFile();
+
+        File reportDir = reportFile.getParentFile();
+
+        reportDir.mkdirs();
+
+        try
+        {
+            return new BufferedOutputStream( new FileOutputStream( reportFile ), 64 * 1024 );
+        }
+        catch ( Exception e )
+        {
+            throw new ReporterException( "When writing AllClass report", e );
+        }
+    }
+
     private static OutputStreamWriter getWriter( OutputStream fos )
     {
         return new OutputStreamWriter( fos, UTF_8 );
@@ -367,6 +431,11 @@ public class StatelessXmlReporter
         String reportName = "TEST-" + ( phrasedFileName ? report.getReportSourceName() : report.getSourceName() );
         String customizedReportName = isBlank( reportNameSuffix ) ? reportName : reportName + "-" + reportNameSuffix;
         return new File( reportsDirectory, stripIllegalFilenameChars( customizedReportName + ".xml" ) );
+    }
+
+    private File getAllClassReportFile()
+    {
+        return new File( reportsDirectory, stripIllegalFilenameChars( "TEST-ALLCLASS.xml" ) );
     }
 
     private void startTestElement( XMLWriter ppw, WrappedReportEntry report )
