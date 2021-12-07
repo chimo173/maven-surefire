@@ -20,7 +20,6 @@ package org.apache.maven.plugin.surefire.report;
  */
 
 import org.apache.maven.plugin.surefire.booterclient.output.InPluginProcessDumpSingleton;
-import org.apache.maven.surefire.api.runorder.RunEntryStatistics;
 import org.apache.maven.surefire.shared.utils.xml.PrettyPrintXMLWriter;
 import org.apache.maven.surefire.shared.utils.xml.XMLWriter;
 import org.apache.maven.surefire.extensions.StatelessReportEventListener;
@@ -34,8 +33,14 @@ import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Deque;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -194,7 +199,8 @@ public class StatelessXmlReporter
             Iterator<WrappedReportEntry> itr = allTestSetReportEntry.iterator();
             Iterator<TestSetStats> its = allTestSetStats.iterator();
 
-            while( itr.hasNext() && its.hasNext() ){
+            while ( itr.hasNext() && its.hasNext() )
+            {
                 WrappedReportEntry testSetReportEntry = itr.next();
                 TestSetStats testSetStats = its.next();
                 createTestSuiteElement( allClassPpw, testSetReportEntry, testSetStats, true ); // TestSuite
@@ -489,7 +495,8 @@ public class StatelessXmlReporter
         Iterator<WrappedReportEntry> itr = reports.iterator();
         Iterator<TestSetStats> its = testAllSetStats.iterator();
 
-        while( itr.hasNext() && its.hasNext() ){
+        while ( itr.hasNext() && its.hasNext() )
+        {
             WrappedReportEntry report = itr.next();
             TestSetStats testSetStats = its.next();
             totalTime += report.getElapsed();
@@ -515,7 +522,8 @@ public class StatelessXmlReporter
     {
         ppw.startElement( "testclass" );
 
-        if ( !allClass ){
+        if ( !allClass )
+        {
             ppw.addAttribute( "xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance" );
             ppw.addAttribute( "xsi:noNamespaceSchemaLocation", xsdSchemaLocation );
             ppw.addAttribute( "version", xsdVersion );
