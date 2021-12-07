@@ -73,7 +73,7 @@ public class CommonReflectorTest
 
         startupReportConfiguration = new StartupReportConfiguration( true, true, "PLAIN", false, reportsDirectory,
                 false, null, statistics, false, 1, null, null, false,
-                xmlReporter, consoleOutputReporter, infoReporter );
+                xmlReporter, consoleOutputReporter, infoReporter, 0 );
 
         consoleLogger = mock( ConsoleLogger.class );
     }

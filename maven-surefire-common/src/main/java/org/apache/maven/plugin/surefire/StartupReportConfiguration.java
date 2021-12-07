@@ -78,6 +78,8 @@ public final class StartupReportConfiguration
 
     private final int rerunFailingTestsCount;
 
+    private final int rerunTestsCount;
+
     private final String xsdSchemaLocation;
 
     private final Map<String, Deque<WrappedReportEntry>> testClassMethodRunHistory = new ConcurrentHashMap<>();
@@ -101,7 +103,7 @@ public final class StartupReportConfiguration
                File statisticsFile, boolean requiresRunHistory, int rerunFailingTestsCount,
                String xsdSchemaLocation, String encoding, boolean isForkMode,
                SurefireStatelessReporter xmlReporter, SurefireConsoleOutputReporter consoleOutputReporter,
-               SurefireStatelessTestsetInfoReporter testsetReporter )
+               SurefireStatelessTestsetInfoReporter testsetReporter, int rerunTestsCount )
     {
         this.useFile = useFile;
         this.printSummary = printSummary;
@@ -115,6 +117,7 @@ public final class StartupReportConfiguration
         this.originalSystemOut = System.out;
         this.originalSystemErr = System.err;
         this.rerunFailingTestsCount = rerunFailingTestsCount;
+        this.rerunTestsCount = rerunTestsCount;
         this.xsdSchemaLocation = xsdSchemaLocation;
         String charset = trimToNull( encoding );
         this.encoding = charset == null ? UTF_8 : Charset.forName( charset );
@@ -159,6 +162,11 @@ public final class StartupReportConfiguration
         return rerunFailingTestsCount;
     }
 
+    public int getRerunTestsCount()
+    {
+        return rerunTestsCount;
+    }
+
     public StatelessReportEventListener<WrappedReportEntry, TestSetStats> instantiateStatelessXmlReporter(
             Integer forkNumber )
     {
@@ -175,7 +183,8 @@ public final class StartupReportConfiguration
 
         DefaultStatelessReportMojoConfiguration xmlReporterConfig =
                 new DefaultStatelessReportMojoConfiguration( resolveReportsDirectory( forkNumber ), reportNameSuffix,
-                        trimStackTrace, rerunFailingTestsCount, xsdSchemaLocation, testClassMethodRunHistory );
+                        trimStackTrace, rerunFailingTestsCount, xsdSchemaLocation, testClassMethodRunHistory,
+                    rerunTestsCount );
 
         return xmlReporter.isDisable() ? null : xmlReporter.createListener( xmlReporterConfig );
     }

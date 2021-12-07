@@ -38,18 +38,21 @@ public class TestRequest
 
     private final int rerunFailingTestsCount;
 
+    private final int rerunTestsCount;
+
     public TestRequest( List suiteXmlFiles, File testSourceDirectory, TestListResolver requestedTests )
     {
-        this( createFiles( suiteXmlFiles ), testSourceDirectory, requestedTests, 0 );
+        this( createFiles( suiteXmlFiles ), testSourceDirectory, requestedTests, 0, 0 );
     }
 
     public TestRequest( List suiteXmlFiles, File testSourceDirectory, TestListResolver requestedTests,
-                        int rerunFailingTestsCount )
+                        int rerunFailingTestsCount, int rerunTestsCount )
     {
         this.suiteXmlFiles = createFiles( suiteXmlFiles );
         this.testSourceDirectory = testSourceDirectory;
         this.requestedTests = requestedTests;
         this.rerunFailingTestsCount = rerunFailingTestsCount;
+        this.rerunTestsCount = rerunTestsCount;
     }
 
     /**
@@ -90,6 +93,11 @@ public class TestRequest
     public int getRerunFailingTestsCount()
     {
         return rerunFailingTestsCount;
+    }
+
+    public int getRerunTestsCount()
+    {
+        return rerunTestsCount;
     }
 
     private static List<File> createFiles( List suiteXmlFiles )

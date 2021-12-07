@@ -94,6 +94,8 @@ public class StatelessXmlReporter
 
     private final int rerunFailingTestsCount;
 
+    private final int rerunTestsCount;
+
     private final String xsdSchemaLocation;
 
     private final String xsdVersion;
@@ -114,12 +116,14 @@ public class StatelessXmlReporter
                                  int rerunFailingTestsCount,
                                  Map<String, Deque<WrappedReportEntry>> testClassMethodRunHistoryMap,
                                  String xsdSchemaLocation, String xsdVersion, boolean phrasedFileName,
-                                 boolean phrasedSuiteName, boolean phrasedClassName, boolean phrasedMethodName )
+                                 boolean phrasedSuiteName, boolean phrasedClassName, boolean phrasedMethodName,
+                                 int rerunTestsCount )
     {
         this.reportsDirectory = reportsDirectory;
         this.reportNameSuffix = reportNameSuffix;
         this.trimStackTrace = trimStackTrace;
         this.rerunFailingTestsCount = rerunFailingTestsCount;
+        this.rerunTestsCount = rerunTestsCount;
         this.testClassMethodRunHistoryMap = testClassMethodRunHistoryMap;
         this.xsdSchemaLocation = xsdSchemaLocation;
         this.xsdVersion = xsdVersion;
@@ -202,7 +206,7 @@ public class StatelessXmlReporter
     private void serializeTestClass( OutputStream outputStream, OutputStreamWriter fw, XMLWriter ppw,
                                      List<WrappedReportEntry> methodEntries )
     {
-        if ( rerunFailingTestsCount > 0 )
+        if ( rerunFailingTestsCount > 0 || rerunTestsCount > 0 )
         {
             serializeTestClassWithRerun( outputStream, fw, ppw, methodEntries );
         }
@@ -234,13 +238,15 @@ public class StatelessXmlReporter
                                               List<WrappedReportEntry> methodEntries )
     {
         WrappedReportEntry firstMethodEntry = methodEntries.get( 0 );
+        boolean firstRun = true;
         switch ( getTestResultType( methodEntries ) )
         {
             case success:
                 for ( WrappedReportEntry methodEntry : methodEntries )
                 {
-                    if ( methodEntry.getReportEntryType() == SUCCESS )
+                    if ( methodEntry.getReportEntryType() == SUCCESS && firstRun )
                     {
+                        firstRun = false;
                         startTestElement( ppw, methodEntry );
                         ppw.endElement();
                     }
@@ -250,7 +256,6 @@ public class StatelessXmlReporter
             case failure:
                 // When rerunFailingTestsCount is set to larger than 0
                 startTestElement( ppw, firstMethodEntry );
-                boolean firstRun = true;
                 for ( WrappedReportEntry singleRunEntry : methodEntries )
                 {
                     if ( firstRun )
@@ -324,7 +329,7 @@ public class StatelessXmlReporter
             testResultTypeList.add( singleRunEntry.getReportEntryType() );
         }
 
-        return DefaultReporterFactory.getTestResultType( testResultTypeList, rerunFailingTestsCount );
+        return DefaultReporterFactory.getTestResultType( testResultTypeList, rerunFailingTestsCount, rerunTestsCount );
     }
 
     private Deque<WrappedReportEntry> getAddMethodRunHistoryMap( String testClassName )

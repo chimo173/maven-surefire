@@ -255,6 +255,16 @@ public class SurefirePlugin
     private int rerunFailingTestsCount;
 
     /**
+
+     * Rerun the test regardless of whether the result is failure or not.
+     * Used to detect flaky test that have been passed the first run.
+     * Enable with system property {@code -Dsurefire.rerunTestsCount=1} or any number greater than zero.
+     * @since 3.0.0-M6
+     */
+    @Parameter( property = "surefire.rerunTestsCount", defaultValue = "0" )
+    private int rerunTestsCount;
+
+    /**
      * Set this to a value greater than 0 to fail the whole test set if the cumulative number of flakes reaches
      * this threshold. Set to 0 to allow an unlimited number of flakes.
      *
@@ -488,6 +498,12 @@ public class SurefirePlugin
         return rerunFailingTestsCount;
     }
 
+    @Override
+    protected int getRerunTestsCount()
+    {
+        return rerunTestsCount;
+    }
+    
     @Override
     public int getFailOnFlakeCount()
     {

@@ -78,7 +78,7 @@ public class StatelessReporterTest
         Map<String, Deque<WrappedReportEntry>> testClassMethodRunHistory = new HashMap<>();
         DefaultStatelessReportMojoConfiguration config =
                 new DefaultStatelessReportMojoConfiguration( reportsDirectory, reportNameSuffix, true, 5, schema,
-                        testClassMethodRunHistory );
+                        testClassMethodRunHistory, 0 );
         SurefireStatelessReporter extension = new SurefireStatelessReporter();
 
         assertThat( extension.getVersion() )
@@ -175,7 +175,7 @@ public class StatelessReporterTest
         Map<String, Deque<WrappedReportEntry>> testClassMethodRunHistory = new HashMap<>();
         DefaultStatelessReportMojoConfiguration config =
                 new DefaultStatelessReportMojoConfiguration( reportsDirectory, reportNameSuffix, true, 5, schema,
-                        testClassMethodRunHistory );
+                        testClassMethodRunHistory, 0 );
         JUnit5Xml30StatelessReporter extension = new JUnit5Xml30StatelessReporter();
 
         assertThat( extension.getVersion() )
