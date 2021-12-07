@@ -262,13 +262,13 @@ public class StatelessXmlReporter
                     {
                         firstRun = false;
                         getTestProblems( fw, ppw, singleRunEntry, trimStackTrace, outputStream,
-                            singleRunEntry.getReportEntryType().getXmlTag(), false );
+                                singleRunEntry.getReportEntryType().getXmlTag(), false );
                         createOutErrElements( fw, ppw, singleRunEntry, outputStream );
                     }
                     else
                     {
                         getTestProblems( fw, ppw, singleRunEntry, trimStackTrace, outputStream,
-                            singleRunEntry.getReportEntryType().getRerunXmlTag(), true );
+                                singleRunEntry.getReportEntryType().getRerunXmlTag(), true );
                     }
                 }
                 ppw.endElement();
@@ -291,7 +291,7 @@ public class StatelessXmlReporter
                     if ( singleRunEntry.getReportEntryType() != SUCCESS )
                     {
                         getTestProblems( fw, ppw, singleRunEntry, trimStackTrace, outputStream,
-                            singleRunEntry.getReportEntryType().getFlakyXmlTag(), true );
+                                singleRunEntry.getReportEntryType().getFlakyXmlTag(), true );
                     }
                 }
                 ppw.endElement();
@@ -299,7 +299,7 @@ public class StatelessXmlReporter
             case skipped:
                 startTestElement( ppw, firstMethodEntry );
                 getTestProblems( fw, ppw, firstMethodEntry, trimStackTrace, outputStream,
-                    firstMethodEntry.getReportEntryType().getXmlTag(), false );
+                        firstMethodEntry.getReportEntryType().getXmlTag(), false );
                 ppw.endElement();
                 break;
             default:
