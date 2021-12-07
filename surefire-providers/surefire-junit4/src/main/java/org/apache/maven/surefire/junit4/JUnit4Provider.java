@@ -158,6 +158,7 @@ public class JUnit4Provider
                 {
                     executeTestSet( testToRun, reporter, notifier );
                 }
+                reporter.allTestSetCompleted();
             }
             finally
             {

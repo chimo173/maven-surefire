@@ -76,6 +76,11 @@ public class ForkingRunListener
     }
 
     @Override
+    public void allTestSetCompleted( )
+    {
+    }
+
+    @Override
     public void testStarting( ReportEntry report )
     {
         target.testStarting( report, trim );

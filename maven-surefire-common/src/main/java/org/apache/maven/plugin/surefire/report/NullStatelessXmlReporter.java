@@ -42,6 +42,11 @@ class NullStatelessXmlReporter
     }
 
     @Override
+    public void allTestSetCompleted()
+    {
+    }
+
+    @Override
     public void cleanTestHistoryMap()
     {
     }

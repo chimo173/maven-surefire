@@ -47,6 +47,11 @@ public interface RunListener
     void testSetCompleted( TestSetReportEntry report );
 
     /**
+     * Indicates end of all given test-sets
+     */
+    void allTestSetCompleted();
+
+    /**
      * Event fired when a test is about to start
      *
      * @param report The report entry to log for
