@@ -186,15 +186,6 @@ public class TestSetRunListener
     @Override
     public void testSetCompleted( TestSetReportEntry report )
     {
-        StackTraceElement stack[] = ( new Throwable() ).getStackTrace();
-        for ( int i = 0; i < stack.length; i++ )
-        {
-            StackTraceElement ste = stack[i];
-            System.out.println( ste.getClassName() + "." + ste.getMethodName() + "(...)" );
-            System.out.println( i + "--" + ste.getMethodName() );
-            System.out.println( i + "--" + ste.getFileName() );
-            System.out.println( i + "--" + ste.getLineNumber() );
-        }
         final WrappedReportEntry wrap = wrapTestSet( report );
         final List<String> testResults =
                 briefOrPlainFormat ? detailsForThis.getTestResults() : Collections.<String>emptyList();

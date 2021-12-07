@@ -112,11 +112,7 @@ public class StatelessXmlReporter
 
     private final boolean phrasedMethodName;
 
-    private static OutputStream allClassOutStream = null;
 
-    private static OutputStreamWriter allClassFw = null;
-
-    private static XMLWriter allClassPpw = null;
 
     private static List<WrappedReportEntry> allTestSetReportEntry = new ArrayList<>();
 
@@ -177,24 +173,28 @@ public class StatelessXmlReporter
         }
 
         allTestSetReportEntry.add( testSetReportEntry );
-        allTestSetStats.add( testSetStats );
+        allTestSetStats.add( testSetStats.countClone() );
     }
 
     @Override
     public void allTestSetCompleted()
     {
-        if ( allClassOutStream == null )
-        {
-            allClassOutStream = getAllClassOutputStream();
-            allClassFw = getWriter( allClassOutStream );
-            allClassPpw = new PrettyPrintXMLWriter( allClassFw );
-            allClassPpw.setEncoding( UTF_8.name() );
-        }
+        OutputStream allClassOutStream = getAllClassOutputStream();
+
+        OutputStreamWriter allClassFw = getWriter( allClassOutStream );
+
+        XMLWriter allClassPpw = new PrettyPrintXMLWriter( allClassFw );
+
+        allClassPpw.setEncoding( UTF_8.name() );
+
         try
         {
-            createAllTestSuiteElement( allClassPpw, allTestSetReportEntry, allTestSetStats );
+            createAllTestSuiteElement( allClassPpw, allTestSetReportEntry, allTestSetStats ); // TestSuite
 
-            //showProperties( allClassPpw, testSetReportEntry.getSystemProperties() );
+            if ( allTestSetReportEntry.size() > 0 )
+            {
+                showProperties( allClassPpw, allTestSetReportEntry.get( 0 ).getSystemProperties() );
+            }
 
             Iterator<WrappedReportEntry> itr = allTestSetReportEntry.iterator();
             Iterator<TestSetStats> its = allTestSetStats.iterator();
@@ -203,7 +203,7 @@ public class StatelessXmlReporter
             {
                 WrappedReportEntry testSetReportEntry = itr.next();
                 TestSetStats testSetStats = its.next();
-                createTestSuiteElement( allClassPpw, testSetReportEntry, testSetStats, true ); // TestSuite
+                createTestSuiteElement( allClassPpw, testSetReportEntry, testSetStats, true ); // TestClass
 
                 Map<String, Map<String, List<WrappedReportEntry>>> classMethodStatistics =
                     arrangeMethodStatistics( testSetReportEntry, testSetStats );
@@ -215,9 +215,10 @@ public class StatelessXmlReporter
                         serializeTestClass( allClassOutStream, allClassFw, allClassPpw, thisMethodRuns.getValue() );
                     }
                 }
+                allClassPpw.endElement(); // TestClass
             }
 
-            allClassPpw.endElement(); //AllClass TestSuite
+            allClassPpw.endElement(); // TestSuite
             allClassFw.flush();
             allClassOutStream.flush();
         }
@@ -500,7 +501,7 @@ public class StatelessXmlReporter
             WrappedReportEntry report = itr.next();
             TestSetStats testSetStats = its.next();
             totalTime += report.getElapsed();
-            totalTests += testSetStats.getErrors();
+            totalTests += testSetStats.getCompletedCount();
             totalErrors += testSetStats.getErrors();
             totalSkipped += testSetStats.getSkipped();
             totalFailures += testSetStats.getFailures();

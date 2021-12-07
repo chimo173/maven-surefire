@@ -42,6 +42,8 @@ public interface MasterProcessChannelEncoder
 
     void testSetCompleted( ReportEntry reportEntry, boolean trimStackTraces );
 
+    void allTestSetCompleted();
+
     void testStarting( ReportEntry reportEntry, boolean trimStackTraces );
 
     void testSucceeded( ReportEntry reportEntry, boolean trimStackTraces );

@@ -78,9 +78,7 @@ public class ForkingRunListener
     @Override
     public void allTestSetCompleted()
     {
-        System.out.println( "$$$$$$$$$$$$$$$$ at allTestSetCompleted" );
-        System.out.println( "$$$$$$$$$$$$$$$$ at allTestSetCompleted" );
-        System.out.println( "$$$$$$$$$$$$$$$$ at allTestSetCompleted" );
+        target.allTestSetCompleted();
     }
 
     @Override

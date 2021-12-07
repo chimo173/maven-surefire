@@ -42,6 +42,7 @@ import org.apache.maven.surefire.api.event.TestSkippedEvent;
 import org.apache.maven.surefire.api.event.TestStartingEvent;
 import org.apache.maven.surefire.api.event.TestSucceededEvent;
 import org.apache.maven.surefire.api.event.TestsetCompletedEvent;
+import org.apache.maven.surefire.api.event.AllTestsetCompletedEvent;
 import org.apache.maven.surefire.api.event.TestsetStartingEvent;
 import org.apache.maven.surefire.api.fork.ForkNodeArguments;
 import org.apache.maven.surefire.api.report.RunMode;
@@ -231,6 +232,7 @@ public class EventDecoder extends AbstractStreamDecoder<Event, ForkedProcessEven
             case BOOTERCODE_BYE:
             case BOOTERCODE_STOP_ON_NEXT_TEST:
             case BOOTERCODE_NEXT_TEST:
+            case BOOTERCODE_ALLTESTSET_COMPLETED:
                 return EVENT_WITHOUT_DATA;
             case BOOTERCODE_CONSOLE_ERROR:
             case BOOTERCODE_JVM_EXIT_ERROR:
@@ -316,6 +318,9 @@ public class EventDecoder extends AbstractStreamDecoder<Event, ForkedProcessEven
             case BOOTERCODE_TESTSET_COMPLETED:
                 checkArguments( runMode, memento, 10 );
                 return new TestsetCompletedEvent( runMode, toReportEntry( memento.getData() ) );
+            case BOOTERCODE_ALLTESTSET_COMPLETED:
+                checkArguments( memento, 0 );
+                return new AllTestsetCompletedEvent();
             case BOOTERCODE_TEST_STARTING:
                 checkArguments( runMode, memento, 10 );
                 return new TestStartingEvent( runMode, toReportEntry( memento.getData() ) );

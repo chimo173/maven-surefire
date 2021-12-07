@@ -66,6 +66,8 @@ public enum ForkedProcessEventType
      */
     BOOTERCODE_TESTSET_COMPLETED( "testset-completed" ),
 
+    BOOTERCODE_ALLTESTSET_COMPLETED( "alltestset-completed" ),
+
     /**
      * This is the opcode "test-starting". The frame is composed of segments and the separator characters ':'
      * <pre>
@@ -310,6 +312,7 @@ public enum ForkedProcessEventType
     {
         return this == BOOTERCODE_TESTSET_STARTING
                 || this == BOOTERCODE_TESTSET_COMPLETED
+                || this == BOOTERCODE_ALLTESTSET_COMPLETED
                 || this == BOOTERCODE_TEST_STARTING
                 || this == BOOTERCODE_TEST_SUCCEEDED
                 || this == BOOTERCODE_TEST_FAILED
