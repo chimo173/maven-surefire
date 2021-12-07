@@ -272,13 +272,13 @@ public class IntegrationTestMojo
     private int rerunFailingTestsCount;
 
     /**
-     * Rerun the whole test regardless of whether the result is failure or not.
+     * Rerun the test regardless of whether the result is failure or not.
      * Used to detect flaky test that have been passed the first run.
-     * Enable with system property {@code -Dsurefire.rerunRegardlessCount=1} or any number greater than zero.
+     * Enable with system property {@code -Dsurefire.rerunTestsCount=1} or any number greater than zero.
      * @since 3.0.0-M6
      */
-    @Parameter( property = "surefire.rerunRegardlessCount", defaultValue = "0" )
-    private int rerunRegardlessCount;
+    @Parameter( property = "surefire.rerunTestsCount", defaultValue = "0" )
+    private int rerunTestsCount;
 
     /**
      * (TestNG) List of &lt;suiteXmlFile&gt; elements specifying TestNG suite xml file locations. Note that
@@ -508,9 +508,9 @@ public class IntegrationTestMojo
     }
 
     @Override
-    protected int getRerunRegardlessCount()
+    protected int getRerunTestsCount()
     {
-        return rerunRegardlessCount;
+        return rerunTestsCount;
     }
 
     @Override

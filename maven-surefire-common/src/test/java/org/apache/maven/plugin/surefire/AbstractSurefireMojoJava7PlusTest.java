@@ -543,7 +543,7 @@ public class AbstractSurefireMojoJava7PlusTest
         }
 
         @Override
-        protected int getRerunRegardlessCount()
+        protected int getRerunTestsCount()
         {
             return 0;
         }

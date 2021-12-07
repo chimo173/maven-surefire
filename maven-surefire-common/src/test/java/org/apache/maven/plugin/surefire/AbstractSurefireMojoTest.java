@@ -2081,7 +2081,7 @@ public class AbstractSurefireMojoTest
         }
 
         @Override
-        protected int getRerunRegardlessCount()
+        protected int getRerunTestsCount()
         {
             return 0;
         }

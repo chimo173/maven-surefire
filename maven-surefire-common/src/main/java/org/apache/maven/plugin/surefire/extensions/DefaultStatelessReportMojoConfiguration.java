@@ -46,10 +46,10 @@ public class DefaultStatelessReportMojoConfiguration
                                                     int rerunFailingTestsCount,
                                                     String xsdSchemaLocation,
                                                     Map<String, Deque<WrappedReportEntry>> testClassMethodRunHistory,
-                                                    int rerunRegardlessCount )
+                                                    int rerunTestsCount )
     {
         super( reportsDirectory, reportNameSuffix, trimStackTrace, rerunFailingTestsCount, xsdSchemaLocation,
-            rerunRegardlessCount );
+               rerunTestsCount );
         this.testClassMethodRunHistory = testClassMethodRunHistory;
     }
 

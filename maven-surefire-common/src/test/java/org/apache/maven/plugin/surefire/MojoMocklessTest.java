@@ -392,7 +392,7 @@ public class MojoMocklessTest
         }
 
         @Override
-        protected int getRerunRegardlessCount()
+        protected int getRerunTestsCount()
         {
             return 0;
         }

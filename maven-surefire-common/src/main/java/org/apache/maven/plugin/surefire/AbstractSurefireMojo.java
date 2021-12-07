@@ -834,8 +834,7 @@ public abstract class AbstractSurefireMojo
 
     protected abstract int getRerunFailingTestsCount();
 
-    protected abstract int getRerunRegardlessCount();
-
+    protected abstract int getRerunTestsCount();
 
     @Override
     public abstract List<String> getIncludes();
@@ -1866,7 +1865,7 @@ public abstract class AbstractSurefireMojo
                                                                  getTestSourceDirectory(),
                                                                  getSpecificTests(),
                                                                  getRerunFailingTestsCount(),
-                                                                 getRerunRegardlessCount() );
+                                                                 getRerunTestsCount() );
 
         final boolean actualFailIfNoTests;
         DirectoryScannerParameters directoryScannerParameters = null;
@@ -2184,7 +2183,7 @@ public abstract class AbstractSurefireMojo
                                                getStatisticsFile( configChecksum ), requiresRunHistory(),
                                                getRerunFailingTestsCount(), getReportSchemaLocation(), getEncoding(),
                                                isForkMode, xmlReporter, outReporter, testsetReporter,
-                                               getRerunRegardlessCount() );
+                                               getRerunTestsCount() );
     }
 
     private boolean isSpecificTestSpecified()
@@ -3022,6 +3021,17 @@ public abstract class AbstractSurefireMojo
         if ( getRerunFailingTestsCount() < 0 )
         {
             throw new MojoFailureException( "Parameter \"rerunFailingTestsCount\" should not be negative." );
+        }
+
+        if ( getRerunTestsCount() < 0 )
+        {
+            throw new MojoFailureException( "Parameter \"rerunTestsCount\" should not be negative." );
+        }
+
+        if ( getRerunTestsCount() > 0 && getRerunFailingTestsCount() > 0 )
+        {
+            throw new MojoFailureException( "Parameter \"rerunFailingTestsCount\"  and \"rerunTestsCount\" should not"
+                                                + " be used together." );
         }
 
         if ( getSkipAfterFailureCount() < 0 )

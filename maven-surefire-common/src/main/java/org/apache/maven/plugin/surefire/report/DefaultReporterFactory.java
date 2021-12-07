@@ -227,7 +227,7 @@ public class DefaultReporterFactory
      */
     // Use default visibility for testing
     static TestResultType getTestResultType( List<ReportEntryType> reportEntries, int rerunFailingTestsCount,
-                                             int rerunRegardlessCount )
+                                             int rerunTestsCount )
     {
         if ( reportEntries == null || reportEntries.isEmpty() )
         {
@@ -253,7 +253,7 @@ public class DefaultReporterFactory
 
         if ( seenFailure || seenError )
         {
-            if ( seenSuccess && ( rerunFailingTestsCount > 0 || rerunRegardlessCount > 0 ) )
+            if ( seenSuccess && ( rerunFailingTestsCount > 0 || rerunTestsCount > 0 ) )
             {
                 return flake;
             }
@@ -320,7 +320,7 @@ public class DefaultReporterFactory
             }
 
             switch ( getTestResultType( resultTypes, reportConfiguration.getRerunFailingTestsCount(),
-                reportConfiguration.getRerunRegardlessCount() ) )
+                reportConfiguration.getRerunTestsCount() ) )
             {
                 case success:
                     // If there are multiple successful runs of the same test, count all of them

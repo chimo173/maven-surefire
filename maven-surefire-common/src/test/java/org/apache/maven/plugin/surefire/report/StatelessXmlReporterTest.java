@@ -103,8 +103,7 @@ public class StatelessXmlReporterTest
         StatelessXmlReporter reporter =
                 new StatelessXmlReporter( reportDir, null, false, 0,
                         new ConcurrentHashMap<String, Deque<WrappedReportEntry>>(), XSD, "3.0",
-                        false, false, false, false,
-                        0 );
+                        false, false, false, false, 0 );
         reporter.cleanTestHistoryMap();
 
         ReportEntry reportEntry = new SimpleReportEntry( getClass().getName(), null, getClass().getName(), null, 12 );

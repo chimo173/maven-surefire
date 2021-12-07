@@ -73,7 +73,7 @@ public class SurefireStatelessReporter
                 false,
                 false,
                 false,
-                configuration.getRerunRegardlessCount() );
+                configuration.getRerunTestsCount() );
     }
 
     @Override
