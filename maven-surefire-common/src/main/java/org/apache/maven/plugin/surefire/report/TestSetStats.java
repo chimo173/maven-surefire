@@ -72,6 +72,19 @@ public class TestSetStats
         this.plainFormat = plainFormat;
     }
 
+    public TestSetStats countClone()
+    {
+        TestSetStats cloneTestSetStats = new TestSetStats( trimStackTrace, plainFormat );
+        cloneTestSetStats.completedCount = completedCount;
+        cloneTestSetStats.failures = failures;
+        cloneTestSetStats.skipped = skipped;
+        cloneTestSetStats.errors = errors;
+        cloneTestSetStats.completedCount = completedCount;
+        cloneTestSetStats.testStartAt = testStartAt;
+        cloneTestSetStats.lastStartAt = lastStartAt;
+        return cloneTestSetStats;
+    }
+
     public int getElapsedSinceTestSetStart()
     {
         return testSetStartAt > 0 ? (int) ( System.currentTimeMillis() - testSetStartAt ) : 0;

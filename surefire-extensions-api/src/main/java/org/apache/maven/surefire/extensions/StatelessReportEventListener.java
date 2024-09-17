@@ -40,4 +40,6 @@ public interface StatelessReportEventListener<R extends TestSetReportEntry, S>
      * @param testSetStats <em>TestSetStats</em>
      */
      void testSetCompleted( R report, S testSetStats );
+
+     void allTestSetCompleted();
 }

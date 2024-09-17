@@ -89,6 +89,11 @@ public class MockReporter
     }
 
     @Override
+    public void allTestSetCompleted()
+    {
+    }
+
+    @Override
     public void testStarting( ReportEntry report )
     {
         events.add( TEST_STARTING );

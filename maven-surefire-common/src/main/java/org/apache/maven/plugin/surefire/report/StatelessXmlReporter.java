@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -46,6 +47,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.maven.plugin.surefire.report.DefaultReporterFactory.TestResultType;
 import static org.apache.maven.plugin.surefire.report.FileReporterUtils.stripIllegalFilenameChars;
 import static org.apache.maven.plugin.surefire.report.ReportEntryType.SUCCESS;
+import static org.apache.maven.plugin.surefire.report.ReporterUtils.formatElapsedTime;
 import static org.apache.maven.surefire.shared.utils.StringUtils.isBlank;
 
 @SuppressWarnings( { "javadoc", "checkstyle:javadoctype" } )
@@ -110,6 +112,12 @@ public class StatelessXmlReporter
 
     private final boolean phrasedMethodName;
 
+
+
+    private static List<WrappedReportEntry> allTestSetReportEntry = new ArrayList<>();
+
+    private static List<TestSetStats> allTestSetStats = new ArrayList<>();
+
     public StatelessXmlReporter( File reportsDirectory, String reportNameSuffix, boolean trimStackTrace,
                                  int rerunFailingTestsCount,
                                  Map<String, Deque<WrappedReportEntry>> testClassMethodRunHistoryMap,
@@ -141,7 +149,7 @@ public class StatelessXmlReporter
             XMLWriter ppw = new PrettyPrintXMLWriter( fw );
             ppw.setEncoding( UTF_8.name() );
 
-            createTestSuiteElement( ppw, testSetReportEntry, testSetStats ); // TestSuite
+            createTestSuiteElement( ppw, testSetReportEntry, testSetStats, false ); // TestSuite
 
             showProperties( ppw, testSetReportEntry.getSystemProperties() );
 
@@ -162,6 +170,62 @@ public class StatelessXmlReporter
             // The control flow must not be broken in TestSetRunListener#testSetCompleted.
             InPluginProcessDumpSingleton.getSingleton()
                     .dumpException( e, e.getLocalizedMessage(), reportsDirectory );
+        }
+
+        allTestSetReportEntry.add( testSetReportEntry );
+        allTestSetStats.add( testSetStats.countClone() );
+    }
+
+    @Override
+    public void allTestSetCompleted()
+    {
+        OutputStream allClassOutStream = getAllClassOutputStream();
+
+        OutputStreamWriter allClassFw = getWriter( allClassOutStream );
+
+        XMLWriter allClassPpw = new PrettyPrintXMLWriter( allClassFw );
+
+        allClassPpw.setEncoding( UTF_8.name() );
+
+        try
+        {
+            createAllTestSuiteElement( allClassPpw, allTestSetReportEntry, allTestSetStats ); // TestSuite
+
+            if ( allTestSetReportEntry.size() > 0 )
+            {
+                showProperties( allClassPpw, allTestSetReportEntry.get( 0 ).getSystemProperties() );
+            }
+
+            Iterator<WrappedReportEntry> itr = allTestSetReportEntry.iterator();
+            Iterator<TestSetStats> its = allTestSetStats.iterator();
+
+            while ( itr.hasNext() && its.hasNext() )
+            {
+                WrappedReportEntry testSetReportEntry = itr.next();
+                TestSetStats testSetStats = its.next();
+                createTestSuiteElement( allClassPpw, testSetReportEntry, testSetStats, true ); // TestClass
+
+                Map<String, Map<String, List<WrappedReportEntry>>> classMethodStatistics =
+                    arrangeMethodStatistics( testSetReportEntry, testSetStats );
+
+                for ( Entry<String, Map<String, List<WrappedReportEntry>>> statistics : classMethodStatistics.entrySet() )
+                {
+                    for ( Entry<String, List<WrappedReportEntry>> thisMethodRuns : statistics.getValue().entrySet() )
+                    {
+                        serializeTestClass( allClassOutStream, allClassFw, allClassPpw, thisMethodRuns.getValue() );
+                    }
+                }
+                allClassPpw.endElement(); // TestClass
+            }
+
+            allClassPpw.endElement(); // TestSuite
+            allClassFw.flush();
+            allClassOutStream.flush();
+        }
+        catch ( Exception e )
+        {
+            InPluginProcessDumpSingleton.getSingleton()
+                .dumpException( e, e.getLocalizedMessage(), reportsDirectory );
         }
     }
 
@@ -357,6 +421,24 @@ public class StatelessXmlReporter
         }
     }
 
+    private OutputStream getAllClassOutputStream()
+    {
+        File reportFile = getAllClassReportFile();
+
+        File reportDir = reportFile.getParentFile();
+
+        reportDir.mkdirs();
+
+        try
+        {
+            return new BufferedOutputStream( new FileOutputStream( reportFile ), 64 * 1024 );
+        }
+        catch ( Exception e )
+        {
+            throw new ReporterException( "When writing AllClass report", e );
+        }
+    }
+
     private static OutputStreamWriter getWriter( OutputStream fos )
     {
         return new OutputStreamWriter( fos, UTF_8 );
@@ -368,6 +450,12 @@ public class StatelessXmlReporter
         String customizedReportName = isBlank( reportNameSuffix ) ? reportName : reportName + "-" + reportNameSuffix;
         return new File( reportsDirectory, stripIllegalFilenameChars( customizedReportName + ".xml" ) );
     }
+
+    private File getAllClassReportFile()
+    {
+        return new File( reportsDirectory, stripIllegalFilenameChars( "TEST-ALLCLASS.xml" ) );
+    }
+
 
     private void startTestElement( XMLWriter ppw, WrappedReportEntry report )
     {
@@ -390,13 +478,57 @@ public class StatelessXmlReporter
         ppw.addAttribute( "time", report.elapsedTimeAsString() );
     }
 
-    private void createTestSuiteElement( XMLWriter ppw, WrappedReportEntry report, TestSetStats testSetStats )
+    private void createAllTestSuiteElement( XMLWriter ppw, List<WrappedReportEntry> reports,
+                                            List<TestSetStats> testAllSetStats )
     {
         ppw.startElement( "testsuite" );
 
         ppw.addAttribute( "xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance" );
         ppw.addAttribute( "xsi:noNamespaceSchemaLocation", xsdSchemaLocation );
         ppw.addAttribute( "version", xsdVersion );
+
+        double totalTime = 0;
+        int totalTests = 0;
+        int totalErrors = 0;
+        int totalSkipped = 0;
+        int totalFailures = 0;
+
+        Iterator<WrappedReportEntry> itr = reports.iterator();
+        Iterator<TestSetStats> its = testAllSetStats.iterator();
+
+        while ( itr.hasNext() && its.hasNext() )
+        {
+            WrappedReportEntry report = itr.next();
+            TestSetStats testSetStats = its.next();
+            totalTime += report.getElapsed();
+            totalTests += testSetStats.getCompletedCount();
+            totalErrors += testSetStats.getErrors();
+            totalSkipped += testSetStats.getSkipped();
+            totalFailures += testSetStats.getFailures();
+        }
+
+        ppw.addAttribute( "time", formatElapsedTime( totalTime ) );
+
+        ppw.addAttribute( "tests", String.valueOf( totalTests ) );
+
+        ppw.addAttribute( "errors", String.valueOf( totalErrors ) );
+
+        ppw.addAttribute( "skipped", String.valueOf( totalSkipped ) );
+
+        ppw.addAttribute( "failures", String.valueOf( totalFailures ) );
+    }
+
+    private void createTestSuiteElement( XMLWriter ppw, WrappedReportEntry report, TestSetStats testSetStats,
+                                         boolean allClass )
+    {
+        ppw.startElement( "testclass" );
+
+        if ( !allClass )
+        {
+            ppw.addAttribute( "xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance" );
+            ppw.addAttribute( "xsi:noNamespaceSchemaLocation", xsdSchemaLocation );
+            ppw.addAttribute( "version", xsdVersion );
+        }
 
         String reportName = phrasedSuiteName ? report.getReportSourceName( reportNameSuffix )
                 : report.getSourceName( reportNameSuffix );

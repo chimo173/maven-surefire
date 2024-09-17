@@ -45,6 +45,7 @@ import static org.apache.maven.surefire.api.booter.ForkedProcessEventType.BOOTER
 import static org.apache.maven.surefire.api.booter.ForkedProcessEventType.BOOTERCODE_STDOUT_NEW_LINE;
 import static org.apache.maven.surefire.api.booter.ForkedProcessEventType.BOOTERCODE_STOP_ON_NEXT_TEST;
 import static org.apache.maven.surefire.api.booter.ForkedProcessEventType.BOOTERCODE_TESTSET_COMPLETED;
+import static org.apache.maven.surefire.api.booter.ForkedProcessEventType.BOOTERCODE_ALLTESTSET_COMPLETED;
 import static org.apache.maven.surefire.api.booter.ForkedProcessEventType.BOOTERCODE_TESTSET_STARTING;
 import static org.apache.maven.surefire.api.booter.ForkedProcessEventType.BOOTERCODE_TEST_ASSUMPTIONFAILURE;
 import static org.apache.maven.surefire.api.booter.ForkedProcessEventType.BOOTERCODE_TEST_ERROR;
@@ -157,6 +158,11 @@ public final class ForkedProcessEventNotifier
     public void setByeListener( ForkedProcessEventListener listener )
     {
         controlEventListeners.put( BOOTERCODE_BYE, requireNonNull( listener ) );
+    }
+
+    public void setAllTestSetCompletedListener( ForkedProcessEventListener listener )
+    {
+        controlEventListeners.put( BOOTERCODE_ALLTESTSET_COMPLETED, requireNonNull( listener ) );
     }
 
     public void setStopOnNextTestListener( ForkedProcessEventListener listener )
